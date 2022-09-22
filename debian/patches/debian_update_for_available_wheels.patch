@@ -1,0 +1,40 @@
+From: Scott Kitterman <scott@kitterman.com>
+Date: Sun, 20 Jun 2021 13:49:30 -0400
+Subject: Update base embed to include pip provided wheels for --no-download
+
+Generate wheel lists and attributes for base install to match pip wheel
+versions and add pkg_resources to the base install for no download.
+
+Origin: vendor
+Forwarded: not-needed
+Last-Update: 2020-07-15
+---
+ src/virtualenv/seed/wheels/embed/__init__.py | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/src/virtualenv/seed/wheels/embed/__init__.py b/src/virtualenv/seed/wheels/embed/__init__.py
+index ae61b9f..c2d4b85 100644
+--- a/src/virtualenv/seed/wheels/embed/__init__.py
++++ b/src/virtualenv/seed/wheels/embed/__init__.py
+@@ -44,6 +44,21 @@ BUNDLE_SUPPORT = {
+ MAX = "3.10"
+ 
+ 
++# Debian specific: Update BUNDLE_SUPPORT to match pip wheels shipped in
++# /usr/share/python-wheels for base install + pkg_resources.
++import os
++wheel_dict = {}
++for wheel in os.listdir(BUNDLE_FOLDER):
++    if wheel.split('-')[0] in ['pip', 'setuptools', 'pkg_resources', 'wheel']:
++        wheel_dict[wheel.split('-')[0]] =  wheel
++
++bundle = {}
++for key, val in BUNDLE_SUPPORT.items():
++    bundle[key] = wheel_dict
++BUNDLE_SUPPORT = bundle
++# End Debian specific
++
++
+ def get_embed_wheel(distribution, for_py_version):
+     path = BUNDLE_FOLDER / (BUNDLE_SUPPORT.get(for_py_version, {}) or BUNDLE_SUPPORT[MAX]).get(distribution)
+     return Wheel.from_path(path)

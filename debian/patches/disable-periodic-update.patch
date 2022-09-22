@@ -1,0 +1,25 @@
+From: Stefano Rivera <stefanor@debian.org>
+Date: Thu, 16 Jul 2020 12:16:19 -0700
+Subject: Disable periodic update
+
+We ship wheels in a separate binary package, and the user should not be
+updating them themselves (even if they had write access).
+
+Forwarded: not-needed
+---
+ src/virtualenv/seed/embed/base_embed.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/virtualenv/seed/embed/base_embed.py b/src/virtualenv/seed/embed/base_embed.py
+index c794e83..fe5239d 100644
+--- a/src/virtualenv/seed/embed/base_embed.py
++++ b/src/virtualenv/seed/embed/base_embed.py
+@@ -10,7 +10,7 @@ from virtualenv.util.six import ensure_str, ensure_text
+ from ..seeder import Seeder
+ from ..wheels import Version
+ 
+-PERIODIC_UPDATE_ON_BY_DEFAULT = True
++PERIODIC_UPDATE_ON_BY_DEFAULT = False
+ 
+ 
+ @add_metaclass(ABCMeta)

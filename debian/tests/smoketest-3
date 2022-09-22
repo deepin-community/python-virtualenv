@@ -1,0 +1,21 @@
+#!/bin/sh
+
+HOME=$AUTOPKGTEST_TMP/home
+mkdir -p $HOME
+cp -r debian/tests/testpackage $HOME
+cd $HOME
+
+virtualenv -p python3 $AUTOPKGTEST_TMP/p3a
+$AUTOPKGTEST_TMP/p3a/bin/pip download 'world<4'
+ls
+$AUTOPKGTEST_TMP/p3a/bin/pip list
+$AUTOPKGTEST_TMP/p3a/bin/pip install -f /usr/share/python-wheels/ pep517
+$AUTOPKGTEST_TMP/p3a/bin/pip install -f /usr/share/python-wheels/ toml
+$AUTOPKGTEST_TMP/p3a/bin/python3 -m pep517.check $HOME/testpackage
+$AUTOPKGTEST_TMP/p3a/bin/pip list
+
+virtualenv -p python3 $AUTOPKGTEST_TMP/p3b
+. $AUTOPKGTEST_TMP/p3b/bin/activate
+pip install -f /usr/share/python-wheels/ idna
+pip list
+python3 -c "import idna; print('idna version:', idna.__version__)"

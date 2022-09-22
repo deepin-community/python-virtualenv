@@ -1,0 +1,2 @@
+# It's a transitional package, so this is fine
+python-virtualenv source: debhelper-but-no-misc-depends virtualenv

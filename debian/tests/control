@@ -1,0 +1,25 @@
+Tests: smoketest-3
+Restrictions: allow-stderr, needs-internet
+
+Tests: setup-3
+Restrictions: allow-stderr
+
+Tests: setup-local-3
+Depends: python3-filelock, @
+Restrictions: allow-stderr
+
+Tests: python2
+Depends: python-six, python2, shunit2, virtualenv
+Restrictions: allow-stderr
+
+Tests: python3
+Depends: python3-all, python3-six, shunit2, virtualenv
+Restrictions: allow-stderr
+
+Tests: pypy
+Depends: pypy, pypy-six, shunit2, virtualenv
+Restrictions: allow-stderr
+
+Tests: pypy3
+Depends: pypy3, python3-six, shunit2, virtualenv
+Restrictions: allow-stderr

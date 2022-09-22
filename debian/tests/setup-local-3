@@ -1,0 +1,26 @@
+#!/bin/sh
+
+HOME=$AUTOPKGTEST_TMP/home
+mkdir -p $HOME $AUTOPKGTEST_TMP/src
+cd $AUTOPKGTEST_TMP/src
+
+cat > setup.py <<EOF
+from setuptools import setup
+
+setup(
+    name='stupid',
+    version='0.0',
+    py_modules=['stupid']
+    )
+EOF
+
+cat > stupid.py <<EOF
+print('stupid module')
+EOF
+
+virtualenv -p python3 $AUTOPKGTEST_TMP/p3 --system-site-packages
+. $AUTOPKGTEST_TMP/p3/bin/activate
+python setup.py install
+
+cd $AUTOPKGTEST_TMP
+python -c "import stupid"

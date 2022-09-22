@@ -1,0 +1,2 @@
+#!/bin/sh
+exec debian/tests/shunit2-tests.sh pypy3

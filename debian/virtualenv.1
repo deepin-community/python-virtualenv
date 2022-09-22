@@ -1,0 +1,120 @@
+.TH VIRTUALENV 1
+.SH NAME
+.B virtualenv
+\- Python virtual environment creator
+.SH SYNOPSIS
+.B virtualenv [\-\-version] [\-\-with\-traceback] [\-v | \fB\-q]\fR [\-\-app\-data APP_DATA] [\-\-clear\-app\-data] [\-\-discovery {builtin}] [\-p py] [\-\-creator {builtin,cpython3\-posix,venv}] [\-\-seeder {app\-data,pip}] [\-\-no\-seed] [\-\-activators comma_sep_list] [\-\-clear] [\-\-system\-site\-packages] [\-\-symlinks | \fB\-\-copies]\fR [\-\-no\-download | \fB\-\-download]\fR [\-\-extra\-search\-dir d [d ...]] [\-\-pip version] [\-\-setuptools version] [\-\-wheel version] [\-\-no\-pip] [\-\-no\-setuptools] [\-\-no\-wheel] [\-\-symlink\-app\-data] [\-\-prompt prompt] [\-h]
+dest
+
+.SH DESCRIPTION
+
+The virtualenv utility creates virtual Python instances, each invokable  with its own Python executable.  Each instance can have different sets of modules, installable via easy_install.  Virtual Python instances can  also be created without root access.
+
+.SS "optional arguments:"
+.TP
+\fB\-\-version\fR
+display the version of the virtualenv package and it's location, then exit
+.TP
+\fB\-\-with\-traceback\fR
+on failure also display the stacktrace internals of virtualenv (default: False)
+.TP
+\fB\-\-app\-data\fR APP_DATA
+a data folder used as cache by the virtualenv (default: <temp folder>)
+.TP
+\fB\-\-clear\-app\-data\fR
+start with empty app data folder (default: False)
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show this help message and exit
+.SS "verbosity:"
+.IP
+verbosity = verbose \- quiet, default INFO, mapping => CRITICAL=0, ERROR=1, WARNING=2, INFO=3, DEBUG=4, NOTSET=5
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+increase verbosity (default: 2)
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+decrease verbosity (default: 0)
+.SS "discovery:"
+.IP
+discover and provide a target interpreter
+.TP
+\fB\-\-discovery\fR {builtin}
+interpreter discovery method (default: builtin)
+.TP
+\fB\-p\fR py, \fB\-\-python\fR py
+target interpreter for which to create a virtual (either absolute path or identifier string) (default: \fI\,/usr/bin/python3\/\fP)
+.SS "creator:"
+.IP
+options for creator builtin
+.TP
+\fB\-\-creator\fR {builtin,cpython3\-posix,venv}
+create environment via (builtin = cpython3\-posix) (default: builtin)
+.TP
+dest
+directory to create virtualenv at
+.TP
+\fB\-\-clear\fR
+remove the destination directory if exist before starting (will overwrite files otherwise) (default: False)
+.TP
+\fB\-\-system\-site\-packages\fR
+give the virtual environment access to the system site\-packages dir (default: False)
+.TP
+\fB\-\-symlinks\fR
+try to use symlinks rather than copies, when symlinks are not the default for the platform (default: True)
+.TP
+\fB\-\-copies\fR, \fB\-\-always\-copy\fR
+try to use copies rather than symlinks, even when symlinks are the default for the platform (default: False)
+.SS "seeder:"
+.IP
+options for seeder app\-data
+.TP
+\fB\-\-seeder\fR {app\-data,pip}
+seed packages install method (default: app\-data)
+.TP
+\fB\-\-no\-seed\fR, \fB\-\-without\-pip\fR
+do not install seed packages (default: False)
+.TP
+\fB\-\-download\fR
+pass to enable download of the latest pip, setuptools, and wheel from PyPI (default: False) 
+.TP
+\fB\-\-no\-download\fR, \fB\-\-never\-download\fR
+pass to disable download of the latest pip, setuptools, and wheel from PyPI (default: True)
+.TP
+\fB\-\-extra\-search\-dir\fR d [d ...]
+a path containing wheels the seeder may also use beside bundled (can be set 1+ times) (default: [])
+.TP
+\fB\-\-pip\fR version
+pip version to install, bundle for bundled (default: latest)
+.TP
+\fB\-\-setuptools\fR version
+setuptools version to install, bundle for bundled (default: latest)
+.TP
+\fB\-\-wheel\fR version
+wheel version to install, bundle for bundled (default: latest)
+.TP
+\fB\-\-no\-pip\fR
+do not install pip (default: False)
+.TP
+\fB\-\-no\-setuptools\fR
+do not install setuptools (default: False)
+.TP
+\fB\-\-no\-wheel\fR
+do not install wheel (default: False)
+.TP
+\fB\-\-symlink\-app\-data\fR
+symlink the python packages from the app-data folder (requires seed pip>=19.3) (default: False)
+.SS "activators:"
+.IP
+options for activation scripts
+.TP
+\fB\-\-activators\fR comma_sep_list
+activators to generate \- default is all supported (default: bash,cshell,fish,powershell,python,xonsh)
+.TP
+\fB\-\-prompt\fR prompt
+provides an alternative prompt prefix for this environment (default: None)
+.PP
+config file $HOME/.config/virtualenv/virtualenv.ini (change via env var VIRTUALENV_CONFIG_FILE)
+.SH AUTHORS
+.PP
+This man-page was created using help2man and then updated by Scott Kitterman <scott@kitterman.com> and is licensed under the same terms as virtualenv.

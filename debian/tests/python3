@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+for python in $(py3versions -s); do
+	echo "===== $python ====="
+	debian/tests/shunit2-tests.sh $python
+done

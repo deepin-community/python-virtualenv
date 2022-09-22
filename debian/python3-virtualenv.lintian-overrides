@@ -1,0 +1,9 @@
+# python-pip-whl is a unique package that works for both python and python3
+# so the check is wrong.  See lintian bug #956698.
+python3-virtualenv: python-package-depends-on-package-from-other-python-variant Depends: python-pip-whl
+
+# the separate virtualenv binary caused problems when users installed the
+# python*-virtualenv package and wondered why it didn't work.  The application
+# package name is still provided by the virtualenv dependency package.
+python3-virtualenv: application-in-library-section python usr/bin/virtualenv
+python3-virtualenv: library-package-name-for-application usr/bin/virtualenv

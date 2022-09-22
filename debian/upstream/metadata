@@ -1,0 +1,10 @@
+---
+Bug-Database: https://github.com/pypa/virtualenv/issues
+Bug-Submit: https://github.com/pypa/virtualenv/issues/new
+Changelog: https://virtualenv.pypa.io/en/latest/changelog.html
+Documentation: https://virtualenv.pypa.io/
+Registry:
+  - Name: PyPI
+    Entry: virtualenv
+Repository: https://github.com/pypa/virtualenv.git
+Repository-Browse: https://github.com/pypa/virtualenv

@@ -1,0 +1,823 @@
+python-virtualenv (20.10.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Stefano Rivera <stefanor@debian.org>  Wed, 03 Nov 2021 10:48:18 -0700
+
+python-virtualenv (20.9.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Patch: Drop (new) dependency on backports.entry-points-selectable, not
+    packaged in Debian, instead we can just pin a dependency on
+    importlib_metadata >= 3.6.
+  * Build-Depend on runtime dependencies that dh_python3 will generate.
+  * include-pkg_resources.patch: Avoid KeyError when building a virtualenv
+    with --no-setuptools, thanks Mathieu Parent. (Closes: #994953)
+  * Bump Standards-Version to 4.6.0, no changes needed.
+  * Point homepage at documentation.
+
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 29 Oct 2021 16:29:33 -0700
+
+python-virtualenv (20.4.6+ds-2) experimental; urgency=medium
+
+  * Replace the pkg_resources addition part of
+    debian_update_for_available_wheels.patch with include-pkg_resources.patch
+    which will only include pkg_resources when using Debian's bundled
+    setuptools wheel. (Closes: #976796)
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 21 Jun 2021 18:29:48 -0400
+
+python-virtualenv (20.4.6+ds-1) experimental; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Remove mentions of easy_install from the package description, long ago
+    replaced by pip, and now removed upstream.
+  * Compare virtualenv to venv in the description.
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 17 May 2021 11:21:55 -0400
+
+python-virtualenv (20.4.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 22 Jan 2021 20:40:18 -0700
+
+python-virtualenv (20.3.1+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+
+ -- Stefano Rivera <stefanor@debian.org>  Thu, 14 Jan 2021 21:23:14 -0700
+
+python-virtualenv (20.3.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Bump copyright years.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sun, 10 Jan 2021 23:04:47 -0700
+
+python-virtualenv (20.2.1+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Bump Standards-Version to 4.5.1, no changes needed.
+  * Bump watch file format to version 4, no changes needed.
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 23 Nov 2020 12:28:47 -0800
+
+python-virtualenv (20.1.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Update upstream metadata.
+
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 30 Oct 2020 12:01:24 -0700
+
+python-virtualenv (20.0.32+ds-1) unstable; urgency=medium
+
+  [ Stefano Rivera ]
+  * New upstream release.
+  * Refresh patches.
+  * Drop Barry from Uploaders, he has retired. Thanks for all the help!
+    (Closes: #970154)
+
+  [ Ondřej Nový ]
+  * d/control: Update Maintainer field with new Debian Python Team
+    contact address.
+  * d/control: Update Vcs-* fields with new Debian Python Team Salsa
+    layout.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 03 Oct 2020 15:44:30 -0700
+
+python-virtualenv (20.0.29+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Replace 0003-Add-ds-to-version.patch with just deleting version.py on
+    clean. It is written during build. (Closes: #966952)
+  * Refresh patches.
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 03 Aug 2020 14:15:20 -0700
+
+python-virtualenv (20.0.27+ds-1) unstable; urgency=medium
+
+  * New upstream release
+  * Refresh and update patches.
+  * Update the Files-Excluded path for the changes in 20.0.24
+  * Declare Rules-Requires-Root: no.
+  * Bump python3-distlib dependency, following upstream.
+  * Patch: Disable virtualenv's periodic wheel update.
+
+ -- Stefano Rivera <stefanor@debian.org>  Thu, 23 Jul 2020 17:29:54 -0700
+
+python-virtualenv (20.0.23+ds-1) unstable; urgency=medium
+
+  * New upstream release
+    - Refresh and update patches
+
+ -- Scott Kitterman <scott@kitterman.com>  Tue, 16 Jun 2020 02:09:50 -0400
+
+python-virtualenv (20.0.21+ds-2) unstable; urgency=medium
+
+  * Let's make lintian less unhappy:
+    - Override debhelper-but-no-misc-depends for virtualenv because it's a
+      transitional package that doesn't need it
+    - In debian/tests/python3 use supported python3 versions, not installed
+    - Fix spelling error in previous debian/changelog entry
+    - Add Repository and Repository-Browse fields to debian/upstream/metadata
+
+ -- Scott Kitterman <scott@kitterman.com>  Wed, 27 May 2020 09:52:32 -0400
+
+python-virtualenv (20.0.21+ds-1) unstable; urgency=medium
+
+  [ Stefano Rivera ]
+  * Autopkgtests:
+    - Mark smoketest-3 as needs-internet, it downloads from PyPI.
+    - Create temporary files in $AUTOPKGTEST_TMP, not the CWD.
+    - Test import of the module installed in the virtualenv, not the CWD.
+    - Use a temporary HOME, for virtualenv's app-data.
+    - Add shunit2 test suite run across all interpreters.
+
+  [ Scott Kitterman ]
+  * Rework smoketest-3 so it executes no downloaded code and does a pep517
+    check of a local testpackage
+  * New upstream release
+    - Refresh patches
+
+ -- Scott Kitterman <scott@kitterman.com>  Mon, 25 May 2020 01:35:09 -0400
+
+python-virtualenv (20.0.20+ds-1) unstable; urgency=medium
+
+  [ Stefano Rivera ]
+  * Remove the instructions on including the ipaddr wheel - it has been
+    reintroduced python-pip-whl 20.0.2-5.
+
+  [ Scott Kitterman ]
+  * New upstream release
+  * Strip upstream provided wheels from tarball and make ds tarball since
+    these are not preferred form of modification, but are free software
+  * Refactor and radically simplify debian/patches/
+    debian_update_for_available_wheels.patch so that only pkg_resources is
+    added to the base_embed and only for local virtualenv activation
+    - Since, as of python3-pip 20.1-1, Debian's pip uses sys.base_prefix
+      instead of sys.prefix, all the pip required wheels no longer need to be
+      in the base virtualenv when pip is installed
+    - Set minimum python3-pip version in python3-virtualenv Depends
+  * Update virtualenv short description to make it clear it is just a
+    dependency package
+  * Update debian/virtualenv.1 to align with refactored patches
+  * Update debian/tests/setup-3 so that dependencies are satisfied locally
+
+ -- Scott Kitterman <scott@kitterman.com>  Mon, 04 May 2020 15:04:12 -0400
+
+python-virtualenv (20.0.17-1) unstable; urgency=medium
+
+  * New upstream release
+  * Add lintian overrides for python3-vritualenv for checks that produce
+    inappropriate results
+  * Improve virtualenv (1) information and formatting
+
+ -- Scott Kitterman <scott@kitterman.com>  Tue, 14 Apr 2020 09:42:40 -0400
+
+python-virtualenv (20.0.16-2) unstable; urgency=medium
+
+  * Document steps for running a python2 virtualenv in virtualenv (1)
+    (Closes: #956148)
+  * Use Debian specific app data cache so upstream virtualenv installed
+    via pip doesn't see our cached wheels and flake out (Closes: #956144)
+    - Thanks to Anthony Sottile for both the report and the suggested fix
+
+ -- Scott Kitterman <scott@kitterman.com>  Sat, 11 Apr 2020 21:01:48 -0400
+
+python-virtualenv (20.0.16-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Scott Kitterman <scott@kitterman.com>  Sun, 05 Apr 2020 01:21:15 -0400
+
+python-virtualenv (20.0.15-1) unstable; urgency=medium
+
+  * New upstream release
+  * Add myself to uploaders
+
+ -- Scott Kitterman <scott@kitterman.com>  Wed, 01 Apr 2020 02:56:06 -0400
+
+python-virtualenv (20.0.13-1) unstable; urgency=medium
+
+  * Team Upload
+  * Clean up debian/watch (tarballs no longer signed)
+  * New upstream release
+    - Refresh patches (including deletion of unused patches)
+  * Add python3-importlib-metadata to python3-virtualenv depends for cases
+    where python3.7 is used outside the virtualenv
+  * Update d/p/debian_update_for_available_wheels.patch to also set no install
+    attributes for added wheels (needed since that feature is fixed in this
+    relaese)
+  * Update debian/verify.1 to match changes for 20.0.13
+
+ -- Scott Kitterman <scott@kitterman.com>  Sat, 21 Mar 2020 05:04:42 -0400
+
+python-virtualenv (20.0.10-1) unstable; urgency=medium
+
+  * Team Upload
+
+  [ Debian Janitor ]
+  * Bump debhelper from old 9 to 12.
+  * Set upstream metadata fields: Bug-Database, Bug-Submit.
+
+  [ Scott Kitterman ]
+  * Replace deprecated binary keyring (debian/upstream-signing-key.pgp) with
+    armored format (debian/upstream/signing-key.asc)
+  * Remove Files-Excluded from debian/copyrigh, embedded wheels no longer
+    provided in upstream tarball
+  * Update debian/ for changed file names
+  * Drop python2 tests, no longer work since pip is python3 only now (Closes:
+    #954153)
+  * Add setuptools-scm to build-depends
+  * Update debian/watch
+  * New upstream release
+  * Replace and refactor all patches based on virtualenv restructure:
+    - Acquire wheels from Debian specific wheels location (from pip wheels)
+    - Generate wheel lists and attributes for base install to include all
+      wheels needed by pip (since Debian uses unvendored wheels)
+  * Drop python2 support (Closes: #938249)
+  * Add new autopkgtest setup-local-3 to test installing from local dist-
+    packages directory works
+  * Update debian/virtualenv.1 using help2man (Closes: #907726)
+    - Now mentions that downloading wheels from pypi is the default
+  * Bump standards-version to 4.5.0 without further change
+  * Move virtualenv script to python3-virtualenv (Closes: #862072)
+    - Split is totally obsolete since python-virtualenv is gone
+    - Make virtualenv a transitional dependency package
+  * Update debian/copyright
+
+ -- Scott Kitterman <scott@kitterman.com>  Fri, 20 Mar 2020 12:25:23 -0400
+
+python-virtualenv (15.1.0+ds-3) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * Use debhelper-compat instead of debian/compat.
+
+  [ Thomas Goirand ]
+  * Team upload.
+  * Removed build-dependencies used for tests, as unit tests aren't in use at
+    build time anyways.
+
+ -- Thomas Goirand <zigo@debian.org>  Thu, 27 Feb 2020 12:38:34 +0100
+
+python-virtualenv (15.1.0+ds-2) unstable; urgency=medium
+
+  [ Vincent Bernat ]
+  * Team upload
+  * d/patches: compatibility with pip 18.1. Closes: #915636.
+
+  [ Barry Warsaw ]
+  * d/control: Remove MIA Jeff Licquia from Uploaders.  (Closes: #854226)
+
+  [ Ondřej Nový ]
+  * d/control: Set Vcs-* to salsa.debian.org
+  * d/copyright: Use https protocol in Format field
+  * d/watch: Use https protocol
+  * d/tests: Use AUTOPKGTEST_TMP instead of ADTTMP
+  * d/control: Remove ancient X-Python-Version field
+  * d/control: Remove ancient X-Python3-Version field
+  * Convert git repository from git-dpm to gbp layout
+
+ -- Vincent Bernat <bernat@debian.org>  Thu, 13 Dec 2018 20:19:35 +0100
+
+python-virtualenv (15.1.0+ds-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * python3-virtualenv: Depend on python3-distutils.
+    Closes: #894684. LP: #1761861.
+
+ -- Matthias Klose <doko@debian.org>  Fri, 06 Apr 2018 22:30:37 +0200
+
+python-virtualenv (15.1.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Barry Warsaw <barry@debian.org>  Thu, 01 Dec 2016 18:08:39 -0500
+
+python-virtualenv (15.0.3+ds-3) unstable; urgency=medium
+
+  * d/patches/use-wheels.patch: Use a Python 2.6-friendly format string.
+    (Closes: #754248)
+
+ -- Barry Warsaw <barry@debian.org>  Mon, 14 Nov 2016 10:55:04 -0500
+
+python-virtualenv (15.0.3+ds-2) unstable; urgency=medium
+
+  * d/tests/smoketest-{2,3}: Pin the version of world that pip installs to
+    less than 4 so that no C is required.  (LP: #1626201)
+
+ -- Barry Warsaw <barry@debian.org>  Wed, 21 Sep 2016 14:01:01 -0400
+
+python-virtualenv (15.0.3+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Barry Warsaw <barry@debian.org>  Fri, 19 Aug 2016 14:11:36 -0400
+
+python-virtualenv (15.0.2+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * d/control: Bump Standards-Version with no other changes necessary.
+
+ -- Barry Warsaw <barry@debian.org>  Mon, 20 Jun 2016 09:59:26 -0400
+
+python-virtualenv (15.0.1+ds-3) unstable; urgency=medium
+
+  * d/control: Because of the previous change, Depends and Build-Depends
+    on python-pip-whl >= 8.1.1-2.
+
+ -- Barry Warsaw <barry@debian.org>  Tue, 19 Apr 2016 09:37:55 -0400
+
+python-virtualenv (15.0.1+ds-2) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * Fixed homepage (https)
+  * Fixed VCS URL (https)
+
+  [ Barry Warsaw ]
+  * d/patches/use-wheels.patch: _markerlib is no longer needed or
+    available, so don't try to install it.  (Closes: #821223)
+
+ -- Barry Warsaw <barry@debian.org>  Mon, 18 Apr 2016 10:59:28 -0400
+
+python-virtualenv (15.0.1+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Barry Warsaw <barry@debian.org>  Tue, 22 Mar 2016 11:20:49 -0400
+
+python-virtualenv (15.0.0+ds-2) unstable; urgency=medium
+
+  * d/control:
+    - Bump python-pip-whl Depends to >= 8.1.0-2 to pick up the required
+      ca-certificates dependency.
+    - No need for virtualenv to explicitly depend on ca-certificates.
+
+ -- Barry Warsaw <barry@debian.org>  Wed, 09 Mar 2016 17:30:15 -0500
+
+python-virtualenv (15.0.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * d/patches/use-wheels.patch: Updated.
+
+ -- Barry Warsaw <barry@debian.org>  Mon, 07 Mar 2016 17:22:04 -0500
+
+python-virtualenv (14.0.5+ds-6) unstable; urgency=medium
+
+  * d/control: Remove obsolete Built-Using field.
+
+ -- Barry Warsaw <barry@debian.org>  Fri, 04 Mar 2016 09:01:42 -0500
+
+python-virtualenv (14.0.5+ds-5) unstable; urgency=medium
+
+  * d/control: Depend on python-pip-whl >= 8.0.3-3, which adds the pip
+    and wheel .whl files.
+  * d/rules: Don't dirtbike the pip and wheel .whl files here.  Now all
+    .whl files go in python-pip-whl.
+
+ -- Barry Warsaw <barry@debian.org>  Thu, 03 Mar 2016 16:31:01 -0500
+
+python-virtualenv (14.0.5+ds-4) unstable; urgency=medium
+
+  * d/tests/control: Add allow-stderr restriction.
+
+ -- Barry Warsaw <barry@debian.org>  Sun, 28 Feb 2016 20:36:25 -0500
+
+python-virtualenv (14.0.5+ds-3) unstable; urgency=medium
+
+  * d/patches/use-wheels.patch: Also install _markerlib in the virtual
+    environment.
+  * d/tests/setup-{2,3}: Added.
+
+ -- Barry Warsaw <barry@debian.org>  Sat, 27 Feb 2016 13:45:48 -0500
+
+python-virtualenv (14.0.5+ds-2) unstable; urgency=medium
+
+  * d/patches/use-wheels.patch: Since setuptools and pkg_resources are
+    separate binary packages in Debian, and thus separate wheels, be sure
+    to explicitly install pkg_resources from the distro wheel into the
+    virtual environment.  Otherwise the implicit assumption that the two
+    always go together will be broken.
+  * d/control: Bump Standards-Version to 3.9.7 with no other changes needed.
+
+ -- Barry Warsaw <barry@debian.org>  Thu, 25 Feb 2016 16:56:36 -0500
+
+python-virtualenv (14.0.5+ds-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #784353)
+  * d/control:
+    - Bump Standards-Version with no other changes necessary.
+    - Bump debhelper Build-Depends to version 9.
+    - Add new test dependencies to Build-Depends-Indep.
+    - Only depend on the python-pip-whl package.
+    - Add Built-Using field to virtualenv binary package.
+    - Add ca-certificates to virtualenv Depends.
+  * d/compat: Bump to version 9.
+  * d/rules:
+    - Disable the tests since the upstream tarball does not include enough
+      to run them.
+    - The upstream changes file has been renamed to docs/changes.rst.
+  * d/tests: Add DEP-8 smoketests.
+  * d/watch: Use pypi.debian.net redirector.
+  * wrap-and-sort -at
+
+ -- Barry Warsaw <barry@debian.org>  Mon, 08 Feb 2016 12:03:56 -0500
+
+python-virtualenv (1.11.6+ds-1) unstable; urgency=medium
+
+  [ Daniele Tricoli ]
+  * Repack source package to remove embedded copy of python-pip-whl and
+    python-setuptools-whl (Closes: #751233)
+  * debian/rules:
+    - Don't override dh_auto_configure to remove embedded wheels since
+      they are removed from source package
+  * debian/watch:
+    - Add dversionmangle option
+
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 01 Nov 2014 12:49:24 -0700
+
+python-virtualenv (1.11.6-2) unstable; urgency=medium
+
+  * d/patches/use-wheels.patch: Ignore EEXIST when creating the
+    <venv>/lib/python-wheels directory.
+
+ -- Barry Warsaw <barry@debian.org>  Thu, 12 Jun 2014 10:50:35 -0400
+
+python-virtualenv (1.11.6-1) unstable; urgency=medium
+
+  * Team upload.
+    - New upstream release.
+    - /usr/bin/virtualenv is now a Python 3 application.
+    - Use -whl packages instead of embedded wheel copies.
+      (Closes: #719767, Closes: #739195)
+  * d/control:
+    - Add binary packages python3-virtualenv (for the Python 3 compatible
+      library), and virtualenv (for the /usr/bin executable and manpage).
+      python-virtualenv now only contains the Python 2 compatible library,
+      and for backward compatibility, it Recommends virtualenv.
+      python-virtualenv no longer recommends pip.
+    - Depend on the appropriate -whl packages to properly de-vendorize,
+      and switch to python3 and python3-pkg-resources.
+    - Build-Depends: add dh-python, and python3-all.
+    - Build-Depends-Indep: add python-pip-whl and python-setuptools-whl.
+    - Add myself to Uploaders.
+    - Add X-Python3-Version.
+    - Change Recommends to python3-pip.
+    - wrap-and-sort
+  * d/install: Don't install the .whl files into
+    /usr/share/python-virtualenv.  Now we use the policy-approved location
+    of /usr/share/python-wheels, and the archive's python-*-whl packages.
+  * d/patches:
+    - look_for_external_files.patch: Removed.  This patch is obsoleted by
+      use-wheels.patch.
+    - entry-points.patch: Update my email address.
+    - python2-default.patch: Added; continue to use `python2` as default
+      unless the -p/--python option is given.
+    - use-wheels.patch: Added; use the system -whl packages instead of the
+      vendorized versions.
+    - system-python.patch: Update to /usr/bin/python3 shebang.
+  * d/rules:
+    - Switch to pybuild and simplify.  Now that we're using the
+      system wheels, we don't need to repack the bundled versions.
+    - Add support for dh_python3.
+  * d/virtualenv.manpages: Replaces debian/manpages.
+
+ -- Barry Warsaw <barry@debian.org>  Tue, 10 Jun 2014 18:16:47 -0400
+
+python-virtualenv (1.11.4-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream release.
+    - Fixed an issue where pip and setuptools were not getting
+      installed when using the --system-site-packages flag.
+    - Updated pip to 1.5.4.
+    - Updated setuptools to 2.2.
+    - Fixed an issue with Python 3.4 and sys.stdout encoding being set to
+      ascii.
+  * d/patches: Quilt refreshed.
+  * d/rules: Removed application of pip_non-writable-home.patch;
+    applied upstream.
+
+ -- Barry Warsaw <barry@debian.org>  Mon, 24 Feb 2014 10:38:54 -0500
+
+python-virtualenv (1.11-2) unstable; urgency=medium
+
+  * Patch the bundled pip to handle a missing/non-writeable $HOME.
+    (Closes: #735806)
+
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 18 Jan 2014 17:13:25 +0200
+
+python-virtualenv (1.11-1) unstable; urgency=medium
+
+  * New upstream release.
+    - Supports Python 3.4.
+    - Bundled setuptools and pip are now wheels.
+  * Refresh patches.
+  * Bump Stardards-Version to 3.9.5 (no changes needed).
+  * Remove README.Debian - contents was outdated and incorrect.
+  * Update copyright, and convert to machine-readable 1.0 format.
+  * Update manpage, removing ignored options and adding new ones.
+  * Configure watch file to verify upstream's PGP signature.
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 06 Jan 2014 17:41:48 +0200
+
+python-virtualenv (1.10.1-1) unstable; urgency=low
+
+  * Team upload.
+  * New upstream release. (Closes: #719700)
+    - Drop use_distribute.patch as this is no longer relevant (--distribute
+        and --setuptools options no longer do anything).
+    - Update files shipped by upstream.
+  * Use https in watch file.
+
+ -- Tristan Seligmann <mithrandi@debian.org>  Wed, 14 Aug 2013 20:44:30 +0200
+
+python-virtualenv (1.9.1-1) unstable; urgency=low
+
+  [ Jakub Wilk ]
+  * Use canonical URIs for Vcs-* fields.
+
+  [ Stefano Rivera ]
+  * New upstream release.
+    - debian/patches/multiarch.patch: Removed; applied upstream.
+  * Upload to unstable.
+  * Bump Standards-Version to 3.9.4.
+    - Bump debhelper dependency to 8.1 for build-{arch,indep} support.
+  * Drop pycentral cleanup in preinst, we haven't used pycentral since before
+    oldstable.
+
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 10 May 2013 02:49:37 +0200
+
+python-virtualenv (1.8.4-2) experimental; urgency=low
+
+  * Team upload.
+  * debian/patches/multiarch.patch: Use system multiarch path, if available.
+    Closes: #695707
+
+ -- Barry Warsaw <barry@python.org>  Tue, 25 Dec 2012 02:06:34 -0500
+
+python-virtualenv (1.8.4-1) experimental; urgency=low
+
+  * Team upload.
+  * New upstream release. (Closes: #691251)
+  * debian/patches/{cleanup_tmpdirs,rebuild_script}.patch: Remove as
+    these have been applied upstream.
+  * debian/patches/add_distribute.patch: Removed, since the new
+    implementation is much simpler.
+  * debian/pip-test_urlparse_uses_fragment.patch, debian/rules: Remove
+    the patching and repacking of pip-1.1 since the now embedded
+    pip-1.2.1 already contains the change.
+  * debian/patches/add_setuptools_option.patch: Added, as the simpler
+    way to add the --setuptools option and $VIRTUALENV_SETUPTOOLS
+    environment variable.  Submitted pull request upstream.
+  * debian/patches/use_distribute.patch: Set the default to distribute.
+    Not forwarded upstream.
+
+ -- Barry Warsaw <barry@python.org>  Fri, 30 Nov 2012 15:06:23 -0500
+
+python-virtualenv (1.7.1.2-2) unstable; urgency=low
+
+  * Apply test_urlparse_uses_fragment.patch to the bundled pip, allowing it to
+    work with Python >= 2.7.4 or >= 3.3. (Closes: #679337)
+
+ -- Stefano Rivera <stefanor@debian.org>  Thu, 12 Jul 2012 12:06:31 -0600
+
+python-virtualenv (1.7.1.2-1) unstable; urgency=low
+
+  [ Clint Byrum ]
+  * New upstream release. (LP: #986227)
+  * d/p/pep3147-dist-packges.patch - Dropped, applied upstream
+  * d/p/remove_syspath0_on_reinvoke.patch - Dropped, applied upstream
+
+  [ Stefano Rivera ]
+  * system-python.patch: Use /usr/bin/python in the shebang
+    (Closes: #663228, LP: #737734)
+  * cleanup_tmpdirs.patch: Cleanup temporary working directories
+    (Closes: #661272)
+    - rebuild_script.patch: Include rebuild_script.py. The tmpdir patch
+      touches some embedded files.
+    - Rebuild virtualenv.py during package build.
+  * Bumped standards version to 3.9.3 (no changes needed).
+  * Add myself to Uploaders.
+  * Wrap long lists in debian/control.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sun, 22 Apr 2012 17:34:40 +0200
+
+python-virtualenv (1.7-1) unstable; urgency=low
+
+  * Team upload.
+  * New upstream version. Closes: #632982
+    - Doesn't import pkg_resources from python2 run with -p python3
+      Closes: #625784, LP: #787822
+  * Refreshed patches.
+  * Bumped standards version to 3.9.2 (no changes needed).
+  * Updated manpage for new options:
+    - --system-site-packages (no longer the default)
+    - --extra-search-dir
+    - --never-download
+  * debian/patches/remove_syspath0_on_reinvoke.patch
+    - Remove the first entry from sys.path to fix failure with -p python3
+  * debian/patches/pep3147-dist-packges.patch
+    - Use the unified python3 dist-packages path in site.py
+
+ -- Stefano Rivera <stefanor@debian.org>  Wed, 14 Dec 2011 22:22:53 +0200
+
+python-virtualenv (1.6-1) unstable; urgency=low
+
+  * New upstream version. Closes: #617941
+  * debian/control
+    - Removed python-support from Build-Depends-Indep
+    - Bump python version to 2.6.6-3
+    - Removed XB-Python-Version
+    - Bump to 3.9.1.0 (No changes needed)
+  * debian/python-virtualenv.lintian-overrides
+    - Added overrides for the 2.7 egg
+  * debian/rules
+    - Added --with python2 to dh $@
+  * debian/virtualenv.1
+    - Added the prompt option description
+  * debian/patches/add_distribute.patch
+    - Updated for the new upstream file virtualenv.py
+
+ -- Carl Chenet <chaica@ohmytux.com>  Thu, 07 Apr 2011 01:45:11 +0200
+
+python-virtualenv (1.4.9-3) unstable; urgency=low
+
+  * Team upload.
+  * Update look_for_external_files.patch to use /usr/share/python-virtualenv
+
+ -- Piotr Ożarowski <piotr@debian.org>  Sun, 22 Aug 2010 15:55:07 +0200
+
+python-virtualenv (1.4.9-2) unstable; urgency=low
+
+  * Team upload.
+
+  [ Carl Chenet ]
+  * Renamed README.source to README.Debian
+  * Added debian/patches/look_for_external_files
+    - patch to store archives and eggs in /usr/share/python-virtualenv
+  * debian/control
+    - bump to 3.9.0 (No changes needed)
+    - moved python-pip to Recommends
+  * debian/rules
+    - removed overrides
+    - cleaning pysupport results
+  * debian/install
+    - corrected path to virtualenv.py. Closes: #588179
+  * debian/python-virtualenv.lintian-overrides
+    - modified paths to lintian-overrides
+
+  [ Piotr Ożarowski ]
+  * Install PIP tarball. Closes: 590824
+  * Add add_distribute.patch (based on Barry Warsaw's one from Ubuntu)
+  * Install scripts/virtualenv instead of the one generated by setuptools
+  * Install docs/news.txt file as upstream changelog
+  * Bump Standards-Version to 3.9.1 (no changes needed)
+
+ -- Piotr Ożarowski <piotr@debian.org>  Sun, 22 Aug 2010 00:13:28 +0200
+
+python-virtualenv (1.4.9-1) unstable; urgency=low
+
+  * New upstream version. Closes: #563993,#571411
+  * Switched from python-virtualenv.manpages to manpages
+  * Added README.source
+  * Added debian/install
+  * Added Depends on python-pip >= 0.7.2
+  * debian/control
+    - added python in Build-Depends
+    - removed Build-Depends python-setuptools dependency
+  * debian/format/source
+    - bump to 3.0 (quilt)
+  * debian/virtualenv.1
+    - added --distribute,--relocatable,--unzip-setuptools descriptions
+  * debian/docs
+    - added news.txt
+    - added debian/README.source
+  * debian/rules
+    - added export DH_ALWAYS_EXCLUDE for pip sources tarball
+    - added override for auto_clean, auto_build, auto_install, install
+      and link
+  * debian/python-virtualenv.lintian-overrides
+    - Added every *.egg in the override
+
+ -- Carl Chenet <chaica@ohmytux.com>  Fri, 18 Jun 2010 01:28:32 +0200
+
+python-virtualenv (1.4.5-1) unstable; urgency=low
+
+  * New upstream release
+  * Using dh7 + rules.tiny
+  * Added a debian/python-virtualenv.preinst file to get rid of
+    python-central
+  * Removed debian/dirs
+  * debian/virtualenv.1 has been created
+  * Removed debian/virtualenv.xml
+  * debian/python-virtualenv.manpages
+    - Switched from debian/virtualenv.1.gz to
+      virtualenv.1
+  * Removed debian/README.Debian because it did not contain any
+    Debian-related information
+  * debian/control
+    - added Vcs-Svn and Vcs-Browser fields
+    - removed Section field in Package section.
+    - removed xsltproc and docbook-xsl from b-d-i
+    - removed the or from Depends field
+    - added dh7 in Build-Depends
+    - switched from python-central to python-support. Closes: #556853.
+    - the Maintainer is now DPMT
+    - put Carl Chenet <chaica@ohmytux.com> in Uploaders
+    - put Jeff Licquia <licquia@debian.org> in Uploaders
+    - bump Standards-Version to 3.8.4 (no changes needed)
+    - switching b-d python-all to python
+    - added python-pip in the Depends field
+    - added ${misc:Depends} in Depends field
+  * debian/compat
+    - bump to 7
+  * debian/rules
+    - added an override for the upstream changelog
+    - using DH_ALWAYS_EXCLUDE for useless files already provided
+     by dependencies
+  * debian/python-virtualenv.lintian-overrides
+    - removing useless overrides on setuptools for py2.4
+  * debian/virtualenv.1
+    - correcting a typo spotted by lintian
+  * debian/python-virtualenv.preinst
+    - cleaning virtualenv from site-packages
+  * debian/watch
+    - remove useless comments
+
+ -- Carl Chenet <chaica@ohmytux.com>  Wed, 17 Mar 2010 00:09:13 +0100
+
+python-virtualenv (1.3.3-1.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * apply Jakub Wilk's patch for Python 2.6 compatibility to
+    debian/rules (Closes: #556853)
+
+ -- Jan Dittberner <jandd@debian.org>  Sun, 24 Jan 2010 01:37:09 +0100
+
+python-virtualenv (1.3.3-1) unstable; urgency=low
+
+  * New upstream version... Closes: #518189.
+  * ...which adds a "--relocatable" option.  Closes: #503168.
+  * Update Standards-Version.
+  * Fix package name in man page.  Closes: #508724.
+
+ -- Jeff Licquia <licquia@debian.org>  Sun, 29 Mar 2009 18:29:53 -0400
+
+python-virtualenv (1.1-1) unstable; urgency=low
+
+  * New upstream version.
+  * Update man page.
+  * Make sure /usr/bin/virtualenv uses the default Python interpreter.
+    Closes: #477683.
+
+ -- Jeff Licquia <licquia@debian.org>  Mon, 26 May 2008 00:11:01 -0400
+
+python-virtualenv (1.0-4) unstable; urgency=low
+
+  * Ignore error on deleting unneeded directory /usr/lib, for bugfixed
+    python-central.  Closes: #472022.
+  * Implement http://wiki.debian.org/Proposals/CopyrightFormat.
+  * Update override paths to reflect new python-central layout.
+
+ -- Jeff Licquia <licquia@debian.org>  Wed, 26 Mar 2008 16:25:57 -0400
+
+python-virtualenv (1.0-3) unstable; urgency=low
+
+  * Fix capitalization mistake.
+  * Switch setuptools dependency to the new python-pkg-resources.
+    Closes: #468706.
+
+ -- Jeff Licquia <licquia@debian.org>  Sat, 01 Mar 2008 11:17:30 -0500
+
+python-virtualenv (1.0-2) unstable; urgency=low
+
+  * Add missing python-setuptools dependency.  Closes: #462193.
+
+ -- Jeff Licquia <licquia@debian.org>  Tue, 22 Jan 2008 23:49:54 -0500
+
+python-virtualenv (1.0-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Jeff Licquia <licquia@debian.org>  Wed, 16 Jan 2008 10:13:52 -0500
+
+python-virtualenv (0.9.2-2) unstable; urgency=low
+
+  * Change the name of the package, by request of ftpmaster.
+  * Update policy version.
+  * Add Homepage and Vcs-* entries to debian/control.
+
+ -- Jeff Licquia <licquia@debian.org>  Wed, 26 Dec 2007 11:35:49 -0500
+
+virtualenv (0.9.2-1) unstable; urgency=low
+
+  * Initial release. (Closes: #442394)
+
+ -- Jeff Licquia <licquia@debian.org>  Tue, 18 Sep 2007 19:30:00 -0500

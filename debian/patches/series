@@ -1,5 +1,4 @@
 debian_wheel_location.patch
 debian_update_for_available_wheels.patch
-include-pkg_resources.patch
 disable-periodic-update.patch
-avoid-backports.entry-points-selectable.patch
+wheel-package-error

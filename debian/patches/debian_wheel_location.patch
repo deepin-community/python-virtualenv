@@ -13,15 +13,15 @@ Last-Update: 2020-07-15
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/virtualenv/seed/wheels/embed/__init__.py b/src/virtualenv/seed/wheels/embed/__init__.py
-index fa222ed..ae61b9f 100644
+index ff3f412..29fc679 100644
 --- a/src/virtualenv/seed/wheels/embed/__init__.py
 +++ b/src/virtualenv/seed/wheels/embed/__init__.py
-@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
+@@ -4,7 +4,7 @@ from pathlib import Path
+ 
  from virtualenv.seed.wheels.util import Wheel
- from virtualenv.util.path import Path
  
 -BUNDLE_FOLDER = Path(__file__).absolute().parent
 +BUNDLE_FOLDER = Path('/usr/share/python-wheels')
  BUNDLE_SUPPORT = {
-     "3.10": {
-         "pip": "pip-21.3.1-py3-none-any.whl",
+     "3.7": {
+         "pip": "pip-23.1.2-py3-none-any.whl",

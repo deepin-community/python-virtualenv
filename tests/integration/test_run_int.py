@@ -1,18 +1,20 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
-import sys
+from pathlib import Path
+
+import pytest
 
 from virtualenv import cli_run
-from virtualenv.util.six import ensure_text
+from virtualenv.info import IS_PYPY
 from virtualenv.util.subprocess import run_cmd
 
 
-def test_app_data_pinning(tmp_path):
-    version = "19.1.1" if sys.version_info[0:2] == (3, 4) else "19.3.1"
-    result = cli_run([ensure_text(str(tmp_path)), "--pip", version, "--activators", "", "--seeder", "app-data"])
-    code, out, err = run_cmd([str(result.creator.script("pip")), "list", "--disable-pip-version-check"])
+@pytest.mark.skipif(IS_PYPY, reason="setuptools distutils patching does not work")
+def test_app_data_pinning(tmp_path: Path) -> None:
+    version = "23.0"
+    result = cli_run([str(tmp_path), "--pip", version, "--activators", "", "--seeder", "app-data"])
+    code, out, _ = run_cmd([str(result.creator.script("pip")), "list", "--disable-pip-version-check"])
     assert not code
-    assert not err
     for line in out.splitlines():
         parts = line.split()
         if parts and parts[0] == "pip":

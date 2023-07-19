@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 
 from setuptools import Extension, setup
@@ -8,7 +10,7 @@ setup(
     ext_modules=[
         Extension(
             "greet",
-            ["greet{}.c".format(sys.version_info[0])],  # extension to package
+            [f"greet{sys.version_info[0]}.c"],  # extension to package
         ),  # C code to compile to run as extension
     ],
 )

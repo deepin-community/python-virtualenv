@@ -1,11 +1,7 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
 from abc import ABCMeta
-
-from six import add_metaclass
-
-from virtualenv.util.path import Path
-from virtualenv.util.six import ensure_str, ensure_text
+from pathlib import Path
 
 from ..seeder import Seeder
 from ..wheels import Version
@@ -13,10 +9,9 @@ from ..wheels import Version
 PERIODIC_UPDATE_ON_BY_DEFAULT = True
 
 
-@add_metaclass(ABCMeta)
-class BaseEmbed(Seeder):
+class BaseEmbed(Seeder, metaclass=ABCMeta):
     def __init__(self, options):
-        super(BaseEmbed, self).__init__(options, enabled=options.no_seed is False)
+        super().__init__(options, enabled=options.no_seed is False)
 
         self.download = options.download
         self.extra_search_dir = [i.resolve() for i in options.extra_search_dir if i.exists()]
@@ -35,36 +30,36 @@ class BaseEmbed(Seeder):
             self.enabled = False
 
     @classmethod
-    def distributions(cls):
+    def distributions(cls) -> dict[str, Version]:
         return {
             "pip": Version.bundle,
             "setuptools": Version.bundle,
             "wheel": Version.bundle,
         }
 
-    def distribution_to_versions(self):
+    def distribution_to_versions(self) -> dict[str, str]:
         return {
-            distribution: getattr(self, "{}_version".format(distribution))
+            distribution: getattr(self, f"{distribution}_version")
             for distribution in self.distributions()
-            if getattr(self, "no_{}".format(distribution)) is False
+            if getattr(self, f"no_{distribution}") is False and getattr(self, f"{distribution}_version") != "none"
         }
 
     @classmethod
-    def add_parser_arguments(cls, parser, interpreter, app_data):
+    def add_parser_arguments(cls, parser, interpreter, app_data):  # noqa: U100
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "--no-download",
             "--never-download",
             dest="download",
             action="store_false",
-            help="pass to disable download of the latest {} from PyPI".format("/".join(cls.distributions())),
+            help=f"pass to disable download of the latest {'/'.join(cls.distributions())} from PyPI",
             default=True,
         )
         group.add_argument(
             "--download",
             dest="download",
             action="store_true",
-            help="pass to enable download of the latest {} from PyPI".format("/".join(cls.distributions())),
+            help=f"pass to enable download of the latest {'/'.join(cls.distributions())} from PyPI",
             default=False,
         )
         parser.add_argument(
@@ -76,19 +71,21 @@ class BaseEmbed(Seeder):
             default=[],
         )
         for distribution, default in cls.distributions().items():
+            if interpreter.version_info[:2] >= (3, 12) and distribution in {"wheel", "setuptools"}:
+                default = "none"
             parser.add_argument(
-                "--{}".format(distribution),
+                f"--{distribution}",
                 dest=distribution,
                 metavar="version",
-                help="version of {} to install as seed: embed, bundle or exact version".format(distribution),
+                help=f"version of {distribution} to install as seed: embed, bundle, none or exact version",
                 default=default,
             )
         for distribution in cls.distributions():
             parser.add_argument(
-                "--no-{}".format(distribution),
-                dest="no_{}".format(distribution),
+                f"--no-{distribution}",
+                dest=f"no_{distribution}",
                 action="store_true",
-                help="do not install {}".format(distribution),
+                help=f"do not install {distribution}",
                 default=False,
             )
         parser.add_argument(
@@ -99,20 +96,23 @@ class BaseEmbed(Seeder):
             default=not PERIODIC_UPDATE_ON_BY_DEFAULT,
         )
 
-    def __unicode__(self):
+    def __repr__(self) -> str:
         result = self.__class__.__name__
         result += "("
         if self.extra_search_dir:
-            result += "extra_search_dir={},".format(", ".join(ensure_text(str(i)) for i in self.extra_search_dir))
-        result += "download={},".format(self.download)
+            result += f"extra_search_dir={', '.join(str(i) for i in self.extra_search_dir)},"
+        result += f"download={self.download},"
         for distribution in self.distributions():
-            if getattr(self, "no_{}".format(distribution)):
+            if getattr(self, f"no_{distribution}"):
                 continue
-            result += " {}{},".format(
-                distribution,
-                "={}".format(getattr(self, "{}_version".format(distribution), None) or "latest"),
-            )
+            version = getattr(self, f"{distribution}_version", None)
+            if version == "none":
+                continue
+            ver = f"={version or 'latest'}"
+            result += f" {distribution}{ver},"
         return result[:-1] + ")"
 
-    def __repr__(self):
-        return ensure_str(self.__unicode__())
+
+__all__ = [
+    "BaseEmbed",
+]

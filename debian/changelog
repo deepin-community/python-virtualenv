@@ -1,3 +1,155 @@
+python-virtualenv (20.23.0+ds-2) unstable; urgency=medium
+
+  * Upload to unstable
+
+ -- Stefano Rivera <stefanor@debian.org>  Wed, 14 Jun 2023 15:47:50 -0400
+
+python-virtualenv (20.23.0+ds-1) experimental; urgency=medium
+
+  * New upstream release.
+
+ -- Stefano Rivera <stefanor@debian.org>  Thu, 04 May 2023 15:36:09 -0400
+
+python-virtualenv (20.21.0+ds-1) experimental; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 25 Mar 2023 21:12:22 -0400
+
+python-virtualenv (20.19.0+ds-1) experimental; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Bump Standards-Version to 4.6.2, no changes needed.
+  * Bump copyright years.
+  * Upstream migrated to hatchling, update Build-Depends.
+  * Upstream stopped bundling docs in the source distribution, drop them.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sun, 12 Feb 2023 15:42:42 -0400
+
+python-virtualenv (20.17.1+ds-1) unstable; urgency=medium
+
+  * New upstream release
+    - Refresh patches
+
+ -- Scott Kitterman <scott@kitterman.com>  Thu, 08 Dec 2022 17:43:56 -0500
+
+python-virtualenv (20.16.6+ds-1) unstable; urgency=medium
+
+  * New upstream release
+  * Drop debian/patches/sysconfig-scheme, incorporated upstream
+  * Refresh patches
+  * Delete Suggests on python2-pip-whl, python2-setuptools-whl, and
+    python2-wheel-whl, since python2 is no longer supported
+  * Fix typo in long description
+  * Remove d/python3-virtualenv.lintian-overrides, no longer needed
+
+ -- Scott Kitterman <scott@kitterman.com>  Sun, 06 Nov 2022 09:29:36 -0500
+
+python-virtualenv (20.16.3+ds-5) unstable; urgency=medium
+
+  * Support the nocheck build profile.
+  * Drop explicit Build-Depends on python3-wheel, no longer needed.
+
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 18 Oct 2022 17:36:14 +0200
+
+python-virtualenv (20.16.3+ds-4.1) unstable; urgency=medium
+
+  * Team upload.
+  * Drop pypy and python2 autopkgtests (closes: #938249) as the binary package
+    python-six got removed from the archive. Python 3 equivalents for these
+    tests already exist (pypy3 and python3).
+
+ -- Micha Lenk <micha@debian.org>  Sat, 15 Oct 2022 20:57:43 +0200
+
+python-virtualenv (20.16.3+ds-4) unstable; urgency=medium
+
+  * Depend on python3-distutils when we have setuptools < 60, which doesn't
+    use its internal distutils copy, yet.
+
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 16 Sep 2022 11:18:39 +0200
+
+python-virtualenv (20.16.3+ds-3) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Bump debhelper from old 12 to 13.
+
+  [ Stefano Rivera ]
+  * Move python3-distutils to Recommends instead, that is the intent here.
+  * Also Recommend build-essential, ca-certificates, and python3-dev,
+    previously transitively depended & recommended through python3-pip.
+  * Patch: Use the correct sysconfig scheme, even when distutils isn't
+    available.
+
+ -- Stefano Rivera <stefanor@debian.org>  Thu, 15 Sep 2022 17:26:18 +0200
+
+python-virtualenv (20.16.3+ds-2) unstable; urgency=medium
+
+  * Drop explicit Depends on python3-pip, it's not needed. (Closes: #1019849)
+  * Depend on python3-distutils, instead. It was previously a transitive
+    dependency through python3-pip.
+
+ -- Stefano Rivera <stefanor@debian.org>  Thu, 15 Sep 2022 16:06:00 +0200
+
+python-virtualenv (20.16.3+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 08 Aug 2022 18:08:41 +0200
+
+python-virtualenv (20.15.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Bump Standards-Version to 4.6.1, no changes needed.
+
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 28 Jun 2022 18:12:38 +0200
+
+python-virtualenv (20.14.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Drop patch pypy3.8, superseded upstream.
+
+ -- Stefano Rivera <stefanor@debian.org>  Wed, 30 Mar 2022 16:46:46 -0400
+
+python-virtualenv (20.13.0+ds-2) unstable; urgency=medium
+
+  * Patch: Create virtualenvs for system PyPy3.8 installs that isolate from
+    system packages.
+
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 04 Mar 2022 21:25:56 -0400
+
+python-virtualenv (20.13.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Reorganise wheel packages, building individual wheels from their source
+    packages (Closes: #1003573):
+    - Depend on individual wheel packages.
+    - Drop include-pkg_resources.patch, pkg_resources is included in the
+      setuptools wheel.
+    - Patch: Instruct the user which apt package to install, if a required
+      wheel package is missing.
+    - Update debian_update_for_available_wheels.patch to parse language
+      version tags.
+    - Mark pypy and python2.7 autopkgtests as skip-not-installable for now, as
+      the binary packages are in NEW. (Closes: #1003687)
+
+ -- Stefano Rivera <stefanor@debian.org>  Thu, 13 Jan 2022 20:34:40 -0400
+
+python-virtualenv (20.12.1+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Drop avoid-backports.entry-points-selectable.patch, superseded upstream.
+  * Build with pybuild's pyproject plugin.
+  * Drop explicit binary dependencies on python3-distutils,
+    python3-importlib-metadata, and python3-pkg-resources, no longer needed.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sun, 02 Jan 2022 09:00:30 -0400
+
 python-virtualenv (20.10.0+ds-1) unstable; urgency=medium
 
   * New upstream release.

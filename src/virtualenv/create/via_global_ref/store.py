@@ -1,6 +1,6 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
-from virtualenv.util.path import Path
+from pathlib import Path
 
 
 def handle_store_python(meta, interpreter):
@@ -20,7 +20,7 @@ def is_store_python(interpreter):
     )
 
 
-__all__ = (
+__all__ = [
     "handle_store_python",
     "is_store_python",
-)
+]

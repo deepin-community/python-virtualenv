@@ -1,16 +1,14 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
 import shutil
 import subprocess
-import sys
+from pathlib import Path
 
 import pytest
 from flaky import flaky
 
 from virtualenv.discovery.py_info import PythonInfo
 from virtualenv.run import cli_run
-from virtualenv.util.path import Path
-from virtualenv.util.six import ensure_text
 
 HERE = Path(__file__).parent
 CURRENT = PythonInfo.current_system()
@@ -19,21 +17,21 @@ CURRENT = PythonInfo.current_system()
 @pytest.fixture(scope="session")
 def zipapp_build_env(tmp_path_factory):
     create_env_path = None
-    if sys.version_info[0:2] >= (3, 5) and CURRENT.implementation != "PyPy":
+    if CURRENT.implementation != "PyPy":
         exe = CURRENT.executable  # guaranteed to contain a recent enough pip (tox.ini)
     else:
         create_env_path = tmp_path_factory.mktemp("zipapp-create-env")
         exe, found = None, False
         # prefer CPython as builder as pypy is slow
         for impl in ["cpython", ""]:
-            for version in range(8, 4, -1):
+            for version in range(11, 6, -1):
                 try:
                     # create a virtual environment which is also guaranteed to contain a recent enough pip (bundled)
                     session = cli_run(
                         [
                             "-vvv",
                             "-p",
-                            "{}3.{}".format(impl, version),
+                            f"{impl}3.{version}",
                             "--activators",
                             "",
                             str(create_env_path),
@@ -50,7 +48,7 @@ def zipapp_build_env(tmp_path_factory):
                 break
         else:
             raise RuntimeError("could not find a python to build zipapp")
-        cmd = [str(Path(exe).parent / "pip"), "install", "pip>=19.3", "packaging>=20"]
+        cmd = [str(Path(exe).parent / "pip"), "install", "pip>=23", "packaging>=23"]
         subprocess.check_call(cmd)
     yield exe
     if create_env_path is not None:
@@ -60,7 +58,7 @@ def zipapp_build_env(tmp_path_factory):
 @pytest.fixture(scope="session")
 def zipapp(zipapp_build_env, tmp_path_factory):
     into = tmp_path_factory.mktemp("zipapp")
-    path = Path(HERE).parent.parent / "tasks" / "make_zipapp.py"
+    path = HERE.parent.parent / "tasks" / "make_zipapp.py"
     filename = into / "virtualenv.pyz"
     cmd = [zipapp_build_env, str(path), "--dest", str(filename)]
     subprocess.check_call(cmd)
@@ -77,9 +75,9 @@ def zipapp_test_env(tmp_path_factory):
 
 
 @pytest.fixture()
-def call_zipapp(zipapp, monkeypatch, tmp_path, zipapp_test_env, temp_app_data):
+def call_zipapp(zipapp, tmp_path, zipapp_test_env, temp_app_data):  # noqa: U100
     def _run(*args):
-        cmd = [str(zipapp_test_env), str(zipapp), "-vv", ensure_text(str(tmp_path / "env"))] + list(args)
+        cmd = [str(zipapp_test_env), str(zipapp), "-vv", str(tmp_path / "env")] + list(args)
         subprocess.check_call(cmd)
 
     return _run

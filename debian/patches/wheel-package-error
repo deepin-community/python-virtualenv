@@ -1,0 +1,33 @@
+From: Stefano Rivera <stefanor@debian.org>
+Date: Tue, 11 Jan 2022 16:45:11 -0400
+Subject: Debian: Instruct the user to install the appropriate -whl package
+
+Forwarded: not-needed
+---
+ src/virtualenv/seed/wheels/embed/__init__.py | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/src/virtualenv/seed/wheels/embed/__init__.py b/src/virtualenv/seed/wheels/embed/__init__.py
+index e9fc606..70204b2 100644
+--- a/src/virtualenv/seed/wheels/embed/__init__.py
++++ b/src/virtualenv/seed/wheels/embed/__init__.py
+@@ -62,6 +62,19 @@ BUNDLE_SUPPORT = list_available_wheels(BUNDLE_SUPPORT.keys())
+ 
+ 
+ def get_embed_wheel(distribution, for_py_version):
++    # Debian specific: Point at the appropriate wheel package
++    wheel = BUNDLE_SUPPORT.get(for_py_version, {}).get(distribution)
++    if wheel is None:
++        raise Exception((
++                "Wheel for {} for Python {} is unavailable. "
++                "apt install python{}-{}-whl"
++            ).format(
++                distribution,
++                for_py_version,
++                '2' if for_py_version == '2.7' else '3',
++                distribution,
++            ))
++
+     path = BUNDLE_FOLDER / (BUNDLE_SUPPORT.get(for_py_version, {}) or BUNDLE_SUPPORT[MAX]).get(distribution)
+     return Wheel.from_path(path)
+ 

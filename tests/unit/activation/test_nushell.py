@@ -1,12 +1,6 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
-import sys
-
-if sys.version_info > (3,):
-    from shutil import which
-else:
-    from distutils.spawn import find_executable as which
-
+from shutil import which
 
 from virtualenv.activation import NushellActivator
 from virtualenv.info import IS_WIN
@@ -19,11 +13,18 @@ def test_nushell(activation_tester_class, activation_tester):
             if cmd is None and IS_WIN:
                 cmd = "c:\\program files\\nu\\bin\\nu.exe"
 
-            super(Nushell, self).__init__(NushellActivator, session, cmd, "activate.nu", "nu")
+            super().__init__(NushellActivator, session, cmd, "activate.nu", "nu")
 
+            self.activate_cmd = "overlay use"
             self.unix_line_ending = not IS_WIN
 
         def print_prompt(self):
-            return r"echo $virtual_prompt; printf '\n'"
+            return r"print $env.VIRTUAL_PROMPT"
+
+        def activate_call(self, script):
+            # Commands are called without quotes in Nushell
+            cmd = self.activate_cmd
+            scr = self.quote(str(script))
+            return f"{cmd} {scr}".strip()
 
     activation_tester(Nushell)

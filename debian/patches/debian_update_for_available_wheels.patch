@@ -9,29 +9,35 @@ Origin: vendor
 Forwarded: not-needed
 Last-Update: 2020-07-15
 ---
- src/virtualenv/seed/wheels/embed/__init__.py | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ src/virtualenv/seed/wheels/embed/__init__.py | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
 diff --git a/src/virtualenv/seed/wheels/embed/__init__.py b/src/virtualenv/seed/wheels/embed/__init__.py
-index ae61b9f..c2d4b85 100644
+index 29fc679..e9fc606 100644
 --- a/src/virtualenv/seed/wheels/embed/__init__.py
 +++ b/src/virtualenv/seed/wheels/embed/__init__.py
-@@ -44,6 +44,21 @@ BUNDLE_SUPPORT = {
- MAX = "3.10"
+@@ -40,6 +40,27 @@ BUNDLE_SUPPORT = {
+ MAX = "3.7"
  
  
 +# Debian specific: Update BUNDLE_SUPPORT to match pip wheels shipped in
 +# /usr/share/python-wheels for base install + pkg_resources.
-+import os
-+wheel_dict = {}
-+for wheel in os.listdir(BUNDLE_FOLDER):
-+    if wheel.split('-')[0] in ['pip', 'setuptools', 'pkg_resources', 'wheel']:
-+        wheel_dict[wheel.split('-')[0]] =  wheel
++def list_available_wheels(versions):
++    import os
++    bundle = {version: {} for version in versions}
++    wheel_files = [Wheel.from_path(BUNDLE_FOLDER / fn)
++                   for fn in os.listdir(BUNDLE_FOLDER)]
++    # Sort wheels so the latest compatible version wins
++    wheel_files.sort(key=lambda wheel: wheel.version_tuple)
++    for wheel in wheel_files:
++        if wheel.distribution in ['pip', 'setuptools', 'wheel']:
++            for version in versions:
++                if wheel.support_py(version):
++                    bundle[version][wheel.distribution] = wheel.name
++    return bundle
 +
-+bundle = {}
-+for key, val in BUNDLE_SUPPORT.items():
-+    bundle[key] = wheel_dict
-+BUNDLE_SUPPORT = bundle
++
++BUNDLE_SUPPORT = list_available_wheels(BUNDLE_SUPPORT.keys())
 +# End Debian specific
 +
 +

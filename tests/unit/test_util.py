@@ -1,11 +1,11 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
-import subprocess
-import sys
+import concurrent.futures
+import traceback
 
 import pytest
 
-from virtualenv.info import IS_WIN, PY2
+from virtualenv.util.lock import ReentrantFileLock
 from virtualenv.util.subprocess import run_cmd
 
 
@@ -16,12 +16,23 @@ def test_run_fail(tmp_path):
     assert code
 
 
-@pytest.mark.skipif(not (PY2 and IS_WIN), reason="subprocess patch only applied on Windows python2")
-def test_windows_py2_cwd_works(tmp_path):
-    cwd = str(tmp_path)
-    result = subprocess.check_output(
-        [sys.executable, "-c", "import os; print(os.getcwd())"],
-        cwd=cwd,
-        universal_newlines=True,
-    )
-    assert result == "{}\n".format(cwd)
+def test_reentrant_file_lock_is_thread_safe(tmp_path):
+    lock = ReentrantFileLock(tmp_path)
+    target_file = tmp_path / "target"
+    target_file.touch()
+
+    def recreate_target_file():
+        with lock.lock_for_key("target"):
+            target_file.unlink()
+            target_file.touch()
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        tasks = []
+        for _ in range(4):
+            tasks.append(executor.submit(recreate_target_file))
+        concurrent.futures.wait(tasks)
+        for task in tasks:
+            try:
+                task.result()
+            except Exception:
+                pytest.fail(traceback.format_exc())

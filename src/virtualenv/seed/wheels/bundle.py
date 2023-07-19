@@ -1,4 +1,4 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
 from ..wheels.embed import get_embed_wheel
 from .periodic_update import periodic_update
@@ -15,7 +15,8 @@ def from_bundle(distribution, version, for_py_version, search_dirs, app_data, do
     if version != Version.embed:
         # 2. check if we have upgraded embed
         if app_data.can_update:
-            wheel = periodic_update(distribution, for_py_version, wheel, search_dirs, app_data, do_periodic_update, env)
+            per = do_periodic_update
+            wheel = periodic_update(distribution, of_version, for_py_version, wheel, search_dirs, app_data, per, env)
 
         # 3. acquire from extra search dir
         found_wheel = from_dir(distribution, of_version, for_py_version, search_dirs)
@@ -47,3 +48,9 @@ def from_dir(distribution, version, for_py_version, directories):
         for wheel in discover_wheels(folder, distribution, version, for_py_version):
             return wheel
     return None
+
+
+__all__ = [
+    "load_embed_wheel",
+    "from_bundle",
+]

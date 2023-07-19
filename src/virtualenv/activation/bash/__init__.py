@@ -1,13 +1,18 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
-from virtualenv.util.path import Path
+from pathlib import Path
 
 from ..via_template import ViaTemplateActivator
 
 
 class BashActivator(ViaTemplateActivator):
     def templates(self):
-        yield Path("activate.sh")
+        yield "activate.sh"
 
     def as_name(self, template):
-        return template.stem
+        return Path(template).stem
+
+
+__all__ = [
+    "BashActivator",
+]

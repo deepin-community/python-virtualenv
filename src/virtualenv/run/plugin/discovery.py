@@ -1,10 +1,10 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
 from .base import PluginLoader
 
 
 class Discovery(PluginLoader):
-    """ """
+    """Discovery plugins"""
 
 
 def get_discover(parser, args):
@@ -33,3 +33,9 @@ def get_discover(parser, args):
 
 def _get_default_discovery(discover_types):
     return list(discover_types.keys())
+
+
+__all__ = [
+    "get_discover",
+    "Discovery",
+]

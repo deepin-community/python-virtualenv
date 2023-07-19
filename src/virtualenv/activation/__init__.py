@@ -1,4 +1,4 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
 from .bash import BashActivator
 from .batch import BatchActivator

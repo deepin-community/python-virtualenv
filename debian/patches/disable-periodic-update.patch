@@ -11,10 +11,10 @@ Forwarded: not-needed
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/virtualenv/seed/embed/base_embed.py b/src/virtualenv/seed/embed/base_embed.py
-index c794e83..fe5239d 100644
+index 80a3364..369bad0 100644
 --- a/src/virtualenv/seed/embed/base_embed.py
 +++ b/src/virtualenv/seed/embed/base_embed.py
-@@ -10,7 +10,7 @@ from virtualenv.util.six import ensure_str, ensure_text
+@@ -6,7 +6,7 @@ from pathlib import Path
  from ..seeder import Seeder
  from ..wheels import Version
  
@@ -22,4 +22,4 @@ index c794e83..fe5239d 100644
 +PERIODIC_UPDATE_ON_BY_DEFAULT = False
  
  
- @add_metaclass(ABCMeta)
+ class BaseEmbed(Seeder, metaclass=ABCMeta):

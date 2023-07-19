@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 A rough layout of the current storage goes as:
 
 virtualenv-app-data
 ├── py - <version> <cache information about python interpreters>
-│   └── *.json/lock
+│  └── *.json/lock
 ├── wheel <cache wheels used for seeding>
-│   ├── house
+│   ├── house
 │   │   └── *.whl <wheels downloaded go here>
 │   └── <python major.minor> -> 3.9
 │       ├── img-<version>
@@ -14,7 +13,7 @@ virtualenv-app-data
 │       │           └── <install class> -> CopyPipInstall / SymlinkPipInstall
 │       │               └── <wheel name> -> pip-20.1.1-py2.py3-none-any
 │       └── embed
-│           └── 1
+│           └── 3 -> json format versioning
 │               └── *.json -> for every distribution contains data about newer embed versions and releases
 └─── unzip <in zip app we cannot refer to some internal files, so first extract them>
      └── <virtualenv version>
@@ -22,7 +21,8 @@ virtualenv-app-data
          ├── debug.py
          └── _virtualenv.py
 """
-from __future__ import absolute_import, unicode_literals
+
+from __future__ import annotations
 
 import json
 import logging
@@ -30,11 +30,8 @@ from abc import ABCMeta
 from contextlib import contextmanager
 from hashlib import sha256
 
-import six
-
 from virtualenv.util.lock import ReentrantFileLock
 from virtualenv.util.path import safe_delete
-from virtualenv.util.six import ensure_text
 from virtualenv.util.zipapp import extract
 from virtualenv.version import __version__
 
@@ -53,7 +50,7 @@ class AppDataDiskFolder(AppData):
         self.lock = ReentrantFileLock(folder)
 
     def __repr__(self):
-        return "{}({})".format(type(self).__name__, self.lock.path)
+        return f"{type(self).__name__}({self.lock.path})"
 
     def __str__(self):
         return str(self.lock.path)
@@ -101,7 +98,7 @@ class AppDataDiskFolder(AppData):
                             filename.unlink()
 
     def embed_update_log(self, distribution, for_py_version):
-        return EmbedDistributionUpdateStoreDisk(self.lock / "wheel" / for_py_version / "embed" / "1", distribution)
+        return EmbedDistributionUpdateStoreDisk(self.lock / "wheel" / for_py_version / "embed" / "3", distribution)
 
     @property
     def house(self):
@@ -113,8 +110,7 @@ class AppDataDiskFolder(AppData):
         return self.lock.path / "wheel" / for_py_version / "image" / "1" / name
 
 
-@six.add_metaclass(ABCMeta)
-class JSONStoreDisk(ContentStore):
+class JSONStoreDisk(ContentStore, metaclass=ABCMeta):
     def __init__(self, in_folder, key, msg, msg_args):
         self.in_folder = in_folder
         self.key = key
@@ -123,7 +119,7 @@ class JSONStoreDisk(ContentStore):
 
     @property
     def file(self):
-        return self.in_folder.path / "{}.json".format(self.key)
+        return self.in_folder.path / f"{self.key}.json"
 
     def exists(self):
         return self.file.exists()
@@ -131,12 +127,12 @@ class JSONStoreDisk(ContentStore):
     def read(self):
         data, bad_format = None, False
         try:
-            data = json.loads(self.file.read_text())
-            logging.debug("got {} from %s".format(self.msg), *self.msg_args)
+            data = json.loads(self.file.read_text(encoding="utf-8"))
+            logging.debug(f"got {self.msg} from %s", *self.msg_args)
             return data
         except ValueError:
             bad_format = True
-        except Exception:  # noqa
+        except Exception:
             pass
         if bad_format:
             try:
@@ -147,7 +143,7 @@ class JSONStoreDisk(ContentStore):
 
     def remove(self):
         self.file.unlink()
-        logging.debug("removed {} at %s".format(self.msg), *self.msg_args)
+        logging.debug(f"removed {self.msg} at %s", *self.msg_args)
 
     @contextmanager
     def locked(self):
@@ -157,21 +153,28 @@ class JSONStoreDisk(ContentStore):
     def write(self, content):
         folder = self.file.parent
         folder.mkdir(parents=True, exist_ok=True)
-        self.file.write_text(ensure_text(json.dumps(content, sort_keys=True, indent=2)))
-        logging.debug("wrote {} at %s".format(self.msg), *self.msg_args)
+        self.file.write_text(json.dumps(content, sort_keys=True, indent=2), encoding="utf-8")
+        logging.debug(f"wrote {self.msg} at %s", *self.msg_args)
 
 
 class PyInfoStoreDisk(JSONStoreDisk):
     def __init__(self, in_folder, path):
-        key = sha256(str(path).encode("utf-8") if six.PY3 else str(path)).hexdigest()
-        super(PyInfoStoreDisk, self).__init__(in_folder, key, "python info of %s", (path,))
+        key = sha256(str(path).encode("utf-8")).hexdigest()
+        super().__init__(in_folder, key, "python info of %s", (path,))
 
 
 class EmbedDistributionUpdateStoreDisk(JSONStoreDisk):
     def __init__(self, in_folder, distribution):
-        super(EmbedDistributionUpdateStoreDisk, self).__init__(
+        super().__init__(
             in_folder,
             distribution,
             "embed update of distribution %s",
             (distribution,),
         )
+
+
+__all__ = [
+    "AppDataDiskFolder",
+    "JSONStoreDisk",
+    "PyInfoStoreDisk",
+]

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
 import logging
 import os
@@ -7,17 +6,14 @@ import shutil
 import sys
 from contextlib import contextmanager
 from functools import partial
+from pathlib import Path
 
 import pytest
-import six
 
 from virtualenv.app_data import AppDataDiskFolder
-from virtualenv.discovery.builtin import get_interpreter
 from virtualenv.discovery.py_info import PythonInfo
 from virtualenv.info import IS_PYPY, IS_WIN, fs_supports_symlink
 from virtualenv.report import LOGGER
-from virtualenv.util.path import Path
-from virtualenv.util.six import ensure_str, ensure_text
 
 
 def pytest_addoption(parser):
@@ -51,7 +47,7 @@ def pytest_collection_modifyitems(config, items):
 
 
 @pytest.fixture(scope="session")
-def has_symlink_support(tmp_path_factory):
+def has_symlink_support(tmp_path_factory):  # noqa: U100
     return fs_supports_symlink()
 
 
@@ -59,9 +55,9 @@ def has_symlink_support(tmp_path_factory):
 def link_folder(has_symlink_support):
     if has_symlink_support:
         return os.symlink
-    elif sys.platform == "win32" and sys.version_info[0:2] > (3, 4):
+    elif sys.platform == "win32":
         # on Windows junctions may be used instead
-        import _winapi  # Cpython3.5 has builtin implementation for junctions
+        import _winapi
 
         return getattr(_winapi, "CreateJunction", None)
     else:
@@ -99,9 +95,9 @@ def link(link_folder, link_file):
 
 
 @pytest.fixture(autouse=True)
-def ensure_logging_stable():
+def _ensure_logging_stable():
     logger_level = LOGGER.level
-    handlers = [i for i in LOGGER.handlers]
+    handlers = list(LOGGER.handlers)
     filelock_logger = logging.getLogger("filelock")
     fl_level = filelock_logger.level
     yield
@@ -114,16 +110,16 @@ def ensure_logging_stable():
 
 
 @pytest.fixture(autouse=True)
-def check_cwd_not_changed_by_test():
+def _check_cwd_not_changed_by_test():
     old = os.getcwd()
     yield
     new = os.getcwd()
     if old != new:
-        pytest.fail("tests changed cwd: {!r} => {!r}".format(old, new))
+        pytest.fail(f"tests changed cwd: {old!r} => {new!r}")
 
 
 @pytest.fixture(autouse=True)
-def ensure_py_info_cache_empty(session_app_data):
+def _ensure_py_info_cache_empty(session_app_data):
     PythonInfo.clear_cache(session_app_data)
     yield
     PythonInfo.clear_cache(session_app_data)
@@ -142,36 +138,18 @@ def change_os_environ(key, value):
 
 
 @pytest.fixture(autouse=True, scope="session")
-def ignore_global_config(tmp_path_factory):
+def _ignore_global_config(tmp_path_factory):
     filename = str(tmp_path_factory.mktemp("folder") / "virtualenv-test-suite.ini")
-    with change_os_environ(ensure_str("VIRTUALENV_CONFIG_FILE"), filename):
+    with change_os_environ("VIRTUALENV_CONFIG_FILE", filename):
         yield
-
-
-@pytest.fixture(autouse=True, scope="session")
-def pip_cert(tmp_path_factory):
-    # workaround for https://github.com/pypa/pip/issues/8984 - if the certificate is explicitly set no error can happen
-    key = ensure_str("PIP_CERT")
-    if key in os.environ:
-        yield
-    else:
-        cert = tmp_path_factory.mktemp("folder") / "cert"
-        import pkgutil
-
-        cert_data = pkgutil.get_data("pip._vendor.certifi", "cacert.pem")
-        cert.write_bytes(cert_data)
-        with change_os_environ(key, str(cert)):
-            yield
 
 
 @pytest.fixture(autouse=True)
-def check_os_environ_stable():
+def _check_os_environ_stable():
     old = os.environ.copy()
     # ensure we don't inherit parent env variables
     to_clean = {
-        k
-        for k in os.environ.keys()
-        if k.startswith(str("VIRTUALENV_")) or str("VIRTUAL_ENV") in k or k.startswith(str("TOX_"))
+        k for k in os.environ.keys() if k.startswith("VIRTUALENV_") or "VIRTUAL_ENV" in k or k.startswith("TOX_")
     }
     cleaned = {k: os.environ[k] for k, v in os.environ.items()}
     override = {
@@ -195,18 +173,18 @@ def check_os_environ_stable():
                 extra = {k: new[k] for k in set(new) - set(old)}
                 miss = {k: old[k] for k in set(old) - set(new) - to_clean}
                 diff = {
-                    "{} = {} vs {}".format(k, old[k], new[k])
+                    f"{k} = {old[k]} vs {new[k]}"
                     for k in set(old) & set(new)
-                    if old[k] != new[k] and not k.startswith(str("PYTEST_"))
+                    if old[k] != new[k] and not k.startswith("PYTEST_")
                 }
                 if extra or miss or diff:
                     msg = "tests changed environ"
                     if extra:
-                        msg += " extra {}".format(extra)
+                        msg += f" extra {extra}"
                     if miss:
-                        msg += " miss {}".format(miss)
+                        msg += f" miss {miss}"
                     if diff:
-                        msg += " diff {}".format(diff)
+                        msg += f" diff {diff}"
                     pytest.fail(msg)
         finally:
             os.environ.update(cleaned)
@@ -221,7 +199,7 @@ def coverage_env(monkeypatch, link, request):
     """
     Enable coverage report collection on the created virtual environments by injecting the coverage project
     """
-    if COVERAGE_RUN and "no_coverage" not in request.fixturenames:
+    if COVERAGE_RUN and "_no_coverage" not in request.fixturenames:
         # we inject right after creation, we cannot collect coverage on site.py - used for helper scripts, such as debug
         from virtualenv import run
 
@@ -259,16 +237,16 @@ def coverage_env(monkeypatch, link, request):
         yield finish
 
 
-# no_coverage tells coverage_env to disable coverage injection for no_coverage user.
-@pytest.fixture
-def no_coverage():
+# _no_coverage tells coverage_env to disable coverage injection for _no_coverage user.
+@pytest.fixture()
+def _no_coverage():
     pass
 
 
 if COVERAGE_RUN:
     import coverage
 
-    class EnableCoverage(object):
+    class EnableCoverage:
         _COV_FILE = Path(coverage.__file__)
         _ROOT_COV_FILES_AND_FOLDERS = [i for i in _COV_FILE.parents[1].iterdir() if i.name.startswith("coverage")]
 
@@ -285,7 +263,7 @@ if COVERAGE_RUN:
                     self.targets.append((target, clean))
             return self
 
-        def __exit__(self, exc_type, exc_val, exc_tb):
+        def __exit__(self, exc_type, exc_val, exc_tb):  # noqa: U100
             for target, clean in self.targets:
                 if target.exists():
                     clean()
@@ -294,7 +272,7 @@ if COVERAGE_RUN:
 
 @pytest.fixture(scope="session")
 def is_inside_ci():
-    yield bool(os.environ.get(str("CI_RUN")))
+    return bool(os.environ.get("CI_RUN"))
 
 
 @pytest.fixture(scope="session")
@@ -318,9 +296,7 @@ def special_char_name():
 @pytest.fixture()
 def special_name_dir(tmp_path, special_char_name):
     dest = Path(str(tmp_path)) / special_char_name
-    yield dest
-    if six.PY2 and sys.platform == "win32" and not IS_PYPY:  # pytest python2 windows does not support unicode delete
-        shutil.rmtree(ensure_text(str(dest)))
+    return dest
 
 
 @pytest.fixture(scope="session")
@@ -337,7 +313,7 @@ def current_fastest(current_creators):
 def session_app_data(tmp_path_factory):
     temp_folder = tmp_path_factory.mktemp("session-app-data")
     app_data = AppDataDiskFolder(folder=str(temp_folder))
-    with change_env_var(str("VIRTUALENV_OVERRIDE_APP_DATA"), str(app_data.lock.path)):
+    with change_env_var("VIRTUALENV_OVERRIDE_APP_DATA", str(app_data.lock.path)):
         yield app_data
 
 
@@ -362,29 +338,30 @@ def change_env_var(key, value):
 @pytest.fixture()
 def temp_app_data(monkeypatch, tmp_path):
     app_data = tmp_path / "app-data"
-    monkeypatch.setenv(str("VIRTUALENV_OVERRIDE_APP_DATA"), str(app_data))
+    monkeypatch.setenv("VIRTUALENV_OVERRIDE_APP_DATA", str(app_data))
     return app_data
 
 
 @pytest.fixture(scope="session")
-def cross_python(is_inside_ci, session_app_data):
-    spec = str(2 if sys.version_info[0] == 3 else 3)
-    interpreter = get_interpreter(spec, [], session_app_data)
-    if interpreter is None:
-        msg = "could not find {}".format(spec)
-        if is_inside_ci:
-            raise RuntimeError(msg)
-        pytest.skip(msg=msg)
-    yield interpreter
-
-
-@pytest.fixture(scope="session")
 def for_py_version():
-    return "{}.{}".format(*sys.version_info[0:2])
+    return f"{sys.version_info.major}.{sys.version_info.minor}"
 
 
 @pytest.fixture()
-def skip_if_test_in_system(session_app_data):
+def _skip_if_test_in_system(session_app_data):
     current = PythonInfo.current(session_app_data)
     if current.system_executable is not None:
         pytest.skip("test not valid if run under system")
+
+
+if IS_PYPY:
+
+    @pytest.fixture()
+    def time_freeze(freezer):
+        return freezer.move_to
+
+else:
+
+    @pytest.fixture()
+    def time_freeze(time_machine):
+        return lambda s: time_machine.move_to(s, tick=False)

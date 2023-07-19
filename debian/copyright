@@ -11,9 +11,9 @@ Files: debian/*
 Copyright: 2007-2009, Jeff Licquia <licquia@debian.org>,
            2010-2011, Carl Chenet <chaica@ohmytux.com>,
            2010       Piotr Ożarowski <piotr@debian.org>,
-           2011-2021, Stefano Rivera <stefanor@debian.org>,
+           2011-2023, Stefano Rivera <stefanor@debian.org>,
            2012       Barry Warsaw <barry@python.org>,
-           2020       Scott Kitterman <scott@kitterman.com>
+           2020-2022, Scott Kitterman <scott@kitterman.com>
 License: Expat
 
 License: Expat

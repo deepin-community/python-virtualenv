@@ -1,2 +1,0 @@
-#!/bin/sh
-exec debian/tests/shunit2-tests.sh python2.7

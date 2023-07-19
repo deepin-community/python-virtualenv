@@ -1,4 +1,4 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
 import pytest
 
@@ -10,7 +10,7 @@ from virtualenv.info import IS_WIN
 def test_bash(raise_on_non_source_class, activation_tester):
     class Bash(raise_on_non_source_class):
         def __init__(self, session):
-            super(Bash, self).__init__(
+            super().__init__(
                 BashActivator,
                 session,
                 "bash",

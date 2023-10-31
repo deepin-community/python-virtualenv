@@ -13,7 +13,7 @@ Last-Update: 2020-07-15
  1 file changed, 21 insertions(+)
 
 diff --git a/src/virtualenv/seed/wheels/embed/__init__.py b/src/virtualenv/seed/wheels/embed/__init__.py
-index 29fc679..e9fc606 100644
+index a107f0d..d70a7b0 100644
 --- a/src/virtualenv/seed/wheels/embed/__init__.py
 +++ b/src/virtualenv/seed/wheels/embed/__init__.py
 @@ -40,6 +40,27 @@ BUNDLE_SUPPORT = {

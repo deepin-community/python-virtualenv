@@ -1,3 +1,10 @@
+python-virtualenv (20.24.1+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+
+ -- Stefano Rivera <stefanor@debian.org>  Thu, 20 Jul 2023 11:52:44 +0200
+
 python-virtualenv (20.23.0+ds-2) unstable; urgency=medium
 
   * Upload to unstable

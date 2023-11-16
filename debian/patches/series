@@ -2,3 +2,4 @@ debian_wheel_location.patch
 debian_update_for_available_wheels.patch
 disable-periodic-update.patch
 wheel-package-error
+platformdirs-4

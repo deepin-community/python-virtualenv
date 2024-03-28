@@ -2,10 +2,7 @@ Tests: smoketest-3
 Restrictions: allow-stderr, needs-internet
 
 Tests: setup-3
-Restrictions: allow-stderr
-
-Tests: setup-local-3
-Depends: python3-filelock, @
+Depends: python3-setuptools, virtualenv
 Restrictions: allow-stderr
 
 Tests: python3

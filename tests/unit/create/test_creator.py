@@ -77,13 +77,12 @@ def test_destination_not_write_able(tmp_path, capsys):
 
 
 def cleanup_sys_path(paths):
-    from virtualenv.create.creator import HERE
+    from virtualenv.create.creator import HERE  # noqa: PLC0415
 
     paths = [p.resolve() for p in (Path(os.path.abspath(i)) for i in paths) if p.exists()]
     to_remove = [Path(HERE)]
     if os.environ.get("PYCHARM_HELPERS_DIR"):
-        to_remove.append(Path(os.environ["PYCHARM_HELPERS_DIR"]).parent)
-        to_remove.append(Path(os.path.expanduser("~")) / ".PyCharm")
+        to_remove.extend((Path(os.environ["PYCHARM_HELPERS_DIR"]).parent, Path(os.path.expanduser("~")) / ".PyCharm"))
     return [i for i in paths if not any(str(i).startswith(str(t)) for t in to_remove)]
 
 
@@ -217,7 +216,11 @@ def test_create_no_seed(  # noqa: C901, PLR0912, PLR0913, PLR0915
         assert result == "None"
 
     git_ignore = (dest / ".gitignore").read_text(encoding="utf-8")
-    assert git_ignore.splitlines() == ["# created by virtualenv automatically", "*"]
+    if creator_key == "venv" and sys.version_info >= (3, 13):
+        comment = "# Created by venv; see https://docs.python.org/3/library/venv.html"
+    else:
+        comment = "# created by virtualenv automatically"
+    assert git_ignore.splitlines() == [comment, "*"]
 
 
 def test_create_vcs_ignore_exists(tmp_path):
@@ -646,7 +649,7 @@ def test_python_path(monkeypatch, tmp_path, python_path_on):
 # https://github.com/pypa/virtualenv/issues/2419
 @pytest.mark.skipif("venv" not in CURRENT_CREATORS, reason="test needs venv creator")
 def test_venv_creator_without_write_perms(tmp_path, mocker):
-    from virtualenv.run.session import Session
+    from virtualenv.run.session import Session  # noqa: PLC0415
 
     prev = Session._create  # noqa: SLF001
 

@@ -8,10 +8,10 @@ Forwarded: not-needed
  1 file changed, 13 insertions(+)
 
 diff --git a/src/virtualenv/seed/wheels/embed/__init__.py b/src/virtualenv/seed/wheels/embed/__init__.py
-index d668923..74f378c 100644
+index 8ca7d09..f417a47 100644
 --- a/src/virtualenv/seed/wheels/embed/__init__.py
 +++ b/src/virtualenv/seed/wheels/embed/__init__.py
-@@ -62,6 +62,19 @@ BUNDLE_SUPPORT = list_available_wheels(BUNDLE_SUPPORT.keys())
+@@ -67,6 +67,19 @@ BUNDLE_SUPPORT = list_available_wheels(BUNDLE_SUPPORT.keys())
  
  
  def get_embed_wheel(distribution, for_py_version):

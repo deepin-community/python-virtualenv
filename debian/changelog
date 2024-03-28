@@ -1,3 +1,36 @@
+python-virtualenv (20.25.1+ds-1) unstable; urgency=medium
+
+  * New upstream point release.
+  * Refresh patches.
+  * Drop Build-Depends, Depends, and Recommends of python3-distutils in
+    preparation for Python 3.12 as default.
+
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 05 Mar 2024 23:29:55 -0400
+
+python-virtualenv (20.25.0+ds-2) unstable; urgency=medium
+
+  * Depend on python3-setuptools for the setup-3 autopkgtest.
+    (Closes: #1061830)
+  * Drop setup-local-3 autotpkgtest, no longer useful.
+
+ -- Stefano Rivera <stefanor@debian.org>  Thu, 01 Feb 2024 18:24:30 -0400
+
+python-virtualenv (20.25.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Drop patch platformdirs-4, superseded upstream.
+  * Autopkgtests: Don't expect setuptools in python 3.12 venvs.
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 04 Dec 2023 21:47:59 -0400
+
+python-virtualenv (20.24.6+ds-2) unstable; urgency=medium
+
+  * Unversion the setuptools dependency in our autopkgtest test package.
+    (Closes: #1056513)
+
+ -- Stefano Rivera <stefanor@debian.org>  Wed, 22 Nov 2023 17:08:34 +0000
+
 python-virtualenv (20.24.6+ds-1) unstable; urgency=medium
 
   * New upstream point release.

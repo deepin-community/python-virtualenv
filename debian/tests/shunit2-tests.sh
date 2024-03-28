@@ -37,6 +37,9 @@ testSystemPackagesAvailable() {
 }
 
 testSetuptoolsAvailable() {
+	if dpkg --compare-versions ${PYTHON#python} ge 3.12; then
+		startSkipping  # setuptools isn't bundled in >= 3.12 venvs
+	fi
 	$VP -c 'import setuptools'
 	assertTrue 'Import setuptools from regular VE' $?
 	$SYSVP -c 'import setuptools'

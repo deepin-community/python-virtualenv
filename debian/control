@@ -15,7 +15,6 @@ Build-Depends: debhelper-compat (= 13),
                unzip <!nocheck>,
                zip <!nocheck>,
 Build-Depends-Indep: python3-distlib (>= 0.3.1) <!nocheck>,
-                     python3-distutils <!nocheck>,
                      python3-filelock <!nocheck>,
                      python3-importlib-metadata (>= 3.6) <!nocheck>,
                      python3-pip-whl <!nocheck>,
@@ -31,11 +30,10 @@ Package: python3-virtualenv
 Architecture: all
 Depends: python3-pip-whl,
          python3-setuptools-whl,
-         python3-setuptools-whl (>= 60) | python3-distutils,
          python3-wheel-whl,
          ${misc:Depends},
          ${python3:Depends},
-Recommends: build-essential, ca-certificates, python3-dev, python3-distutils
+Recommends: build-essential, ca-certificates, python3-dev
 Breaks: virtualenv (<< 20.0.10)
 Replaces: virtualenv (<< 20.0.10)
 Description: Python virtual environment creator

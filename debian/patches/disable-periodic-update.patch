@@ -11,7 +11,7 @@ Forwarded: not-needed
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/virtualenv/seed/embed/base_embed.py b/src/virtualenv/seed/embed/base_embed.py
-index 5ff2c84..ac18334 100644
+index 864cc49..7d83cb6 100644
 --- a/src/virtualenv/seed/embed/base_embed.py
 +++ b/src/virtualenv/seed/embed/base_embed.py
 @@ -6,7 +6,7 @@ from pathlib import Path
@@ -22,4 +22,4 @@ index 5ff2c84..ac18334 100644
 +PERIODIC_UPDATE_ON_BY_DEFAULT = False
  
  
- class BaseEmbed(Seeder, metaclass=ABCMeta):
+ class BaseEmbed(Seeder, ABC):

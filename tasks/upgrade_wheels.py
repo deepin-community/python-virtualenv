@@ -15,7 +15,7 @@ from threading import Thread
 STRICT = "UPGRADE_ADVISORY" not in os.environ
 
 BUNDLED = ["pip", "setuptools", "wheel"]
-SUPPORT = [(3, i) for i in range(7, 13)]
+SUPPORT = [(3, i) for i in range(7, 14)]
 DEST = Path(__file__).resolve().parents[1] / "src" / "virtualenv" / "seed" / "wheels" / "embed"
 
 
@@ -120,7 +120,7 @@ def run():  # noqa: C901
         dest_target = DEST / "__init__.py"
         dest_target.write_text(msg, encoding="utf-8")
 
-        subprocess.run([sys.executable, "-m", "black", str(dest_target)], check=False)  # noqa: S603
+        subprocess.run([sys.executable, "-m", "ruff", str(dest_target), "--fix", "--unsafe-fixes"], check=False)  # noqa: S603
 
         raise SystemExit(outcome)
 

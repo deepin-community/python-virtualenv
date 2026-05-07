@@ -1,3 +1,12 @@
+python-virtualenv (20.25.1+ds-1deepin1) unstable; urgency=medium
+
+  * Fix CVE-2024-53899: Command injection in activation scripts.
+    Properly quote string placeholders in activation script templates
+    to mitigate potential command injection.
+    Upstream: https://github.com/pypa/virtualenv/pull/2771
+
+ -- deepin-ci-robot <packages@deepin.org>  Wed, 07 May 2026 23:15:00 +0800
+
 python-virtualenv (20.25.1+ds-1) unstable; urgency=medium
 
   * New upstream point release.

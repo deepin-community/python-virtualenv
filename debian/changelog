@@ -1,3 +1,12 @@
+python-virtualenv (20.25.1+ds-1deepin1) unstable; urgency=medium
+
+  * Fix CVE-2026-22702: TOCTOU race condition in directory creation.
+    Fix TOCTOU vulnerabilities in app_data and lock directory creation
+    that could be exploited via symlink attacks.
+    Upstream: https://github.com/pypa/virtualenv/pull/3013
+
+ -- deepin-ci-robot <packages@deepin.org>  Wed, 07 May 2026 23:25:00 +0800
+
 python-virtualenv (20.25.1+ds-1) unstable; urgency=medium
 
   * New upstream point release.

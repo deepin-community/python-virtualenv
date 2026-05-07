@@ -1,3 +1,4 @@
+CVE-2026-22702.patch
 debian_wheel_location.patch
 debian_update_for_available_wheels.patch
 disable-periodic-update.patch

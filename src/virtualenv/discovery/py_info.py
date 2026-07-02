@@ -11,6 +11,7 @@ import logging
 import os
 import platform
 import re
+import struct
 import sys
 import sysconfig
 import warnings
@@ -18,6 +19,7 @@ from collections import OrderedDict, namedtuple
 from string import digits
 
 VersionInfo = namedtuple("VersionInfo", ["major", "minor", "micro", "releaselevel", "serial"])  # noqa: PYI024
+LOGGER = logging.getLogger(__name__)
 
 
 def _get_path_extensions():
@@ -43,7 +45,10 @@ class PythonInfo:  # noqa: PLR0904
 
         # this is a tuple in earlier, struct later, unify to our own named tuple
         self.version_info = VersionInfo(*sys.version_info)
-        self.architecture = 64 if sys.maxsize > 2**32 else 32
+        # Use the same implementation as found in stdlib platform.architecture
+        # to account for platforms where the maximum integer is not equal the
+        # pointer size.
+        self.architecture = 32 if struct.calcsize("P") == 4 else 64  # noqa: PLR2004
 
         # Used to determine some file names.
         # See `CPython3Windows.python_zip()`.
@@ -51,6 +56,7 @@ class PythonInfo:  # noqa: PLR0904
 
         self.version = sys.version
         self.os = os.name
+        self.free_threaded = sysconfig.get_config_var("Py_GIL_DISABLED") == 1
 
         # information about the prefix - determines python home
         self.prefix = abs_path(getattr(sys, "prefix", None))  # prefix we think
@@ -112,8 +118,7 @@ class PythonInfo:  # noqa: PLR0904
 
         config_var_keys = set()
         for element in self.sysconfig_paths.values():
-            for k in _CONF_VAR_RE.findall(element):
-                config_var_keys.add(k[1:-1])
+            config_var_keys.update(k[1:-1] for k in _CONF_VAR_RE.findall(element))
         config_var_keys.add("PYTHONFRAMEWORK")
 
         self.sysconfig_vars = {i: sysconfig.get_config_var(i or "") for i in config_var_keys}
@@ -290,7 +295,12 @@ class PythonInfo:  # noqa: PLR0904
 
     @property
     def spec(self):
-        return "{}{}-{}".format(self.implementation, ".".join(str(i) for i in self.version_info), self.architecture)
+        return "{}{}{}-{}".format(
+            self.implementation,
+            ".".join(str(i) for i in self.version_info),
+            "t" if self.free_threaded else "",
+            self.architecture,
+        )
 
     @classmethod
     def clear_cache(cls, app_data):
@@ -300,7 +310,7 @@ class PythonInfo:  # noqa: PLR0904
         clear(app_data)
         cls._cache_exe_discovery.clear()
 
-    def satisfies(self, spec, impl_must_match):  # noqa: C901
+    def satisfies(self, spec, impl_must_match):  # noqa: C901, PLR0911
         """Check if a given specification can be satisfied by the this python interpreter instance."""
         if spec.path:
             if self.executable == os.path.abspath(spec.path):
@@ -326,6 +336,9 @@ class PythonInfo:  # noqa: PLR0904
         if spec.architecture is not None and spec.architecture != self.architecture:
             return False
 
+        if spec.free_threaded is not None and spec.free_threaded != self.free_threaded:
+            return False
+
         for our, req in zip(self.version_info[0:3], (spec.major, spec.minor, spec.micro)):
             if req is not None and our is not None and our != req:
                 return False
@@ -345,7 +358,7 @@ class PythonInfo:  # noqa: PLR0904
         return cls._current
 
     @classmethod
-    def current_system(cls, app_data=None):
+    def current_system(cls, app_data=None) -> PythonInfo:
         """
         This locates the current host interpreter information. This might be different than what we run into in case
         the host python has been upgraded from underneath us.
@@ -384,10 +397,10 @@ class PythonInfo:  # noqa: PLR0904
         if isinstance(proposed, PythonInfo) and resolve_to_host:
             try:
                 proposed = proposed._resolve_to_system(app_data, proposed)  # noqa: SLF001
-            except Exception as exception:  # noqa: BLE001
+            except Exception as exception:
                 if raise_on_error:
                     raise
-                logging.info("ignore %s due cannot resolve system due to %r", proposed.original_executable, exception)
+                LOGGER.info("ignore %s due cannot resolve system due to %r", proposed.original_executable, exception)
                 proposed = None
         return proposed
 
@@ -413,12 +426,12 @@ class PythonInfo:  # noqa: PLR0904
             if prefix in prefixes:
                 if len(prefixes) == 1:
                     # if we're linking back to ourselves accept ourselves with a WARNING
-                    logging.info("%r links back to itself via prefixes", target)
+                    LOGGER.info("%r links back to itself via prefixes", target)
                     target.system_executable = target.executable
                     break
                 for at, (p, t) in enumerate(prefixes.items(), start=1):
-                    logging.error("%d: prefix=%s, info=%r", at, p, t)
-                logging.error("%d: prefix=%s, info=%r", len(prefixes) + 1, prefix, target)
+                    LOGGER.error("%d: prefix=%s, info=%r", at, p, t)
+                LOGGER.error("%d: prefix=%s, info=%r", len(prefixes) + 1, prefix, target)
                 msg = "prefixes are causing a circle {}".format("|".join(prefixes.keys()))
                 raise RuntimeError(msg)
             prefixes[prefix] = target
@@ -433,9 +446,9 @@ class PythonInfo:  # noqa: PLR0904
     def discover_exe(self, app_data, prefix, exact=True, env=None):  # noqa: FBT002
         key = prefix, exact
         if key in self._cache_exe_discovery and prefix:
-            logging.debug("discover exe from cache %s - exact %s: %r", prefix, exact, self._cache_exe_discovery[key])
+            LOGGER.debug("discover exe from cache %s - exact %s: %r", prefix, exact, self._cache_exe_discovery[key])
             return self._cache_exe_discovery[key]
-        logging.debug("discover exe for %s in %s", self, prefix)
+        LOGGER.debug("discover exe for %s in %s", self, prefix)
         # we don't know explicitly here, do some guess work - our executable name should tell
         possible_names = self._find_possible_exe_names()
         possible_folders = self._find_possible_folders(prefix)
@@ -451,7 +464,7 @@ class PythonInfo:  # noqa: PLR0904
             info = self._select_most_likely(discovered, self)
             folders = os.pathsep.join(possible_folders)
             self._cache_exe_discovery[key] = info
-            logging.debug("no exact match found, chosen most similar of %s within base folders %s", info, folders)
+            LOGGER.debug("no exact match found, chosen most similar of %s within base folders %s", info, folders)
             return info
         msg = "failed to detect {} in {}".format("|".join(possible_names), os.pathsep.join(possible_folders))
         raise RuntimeError(msg)
@@ -470,7 +483,7 @@ class PythonInfo:  # noqa: PLR0904
                 if item == "version_info":
                     found, searched = ".".join(str(i) for i in found), ".".join(str(i) for i in searched)
                 executable = info.executable
-                logging.debug("refused interpreter %s because %s differs %s != %s", executable, item, found, searched)
+                LOGGER.debug("refused interpreter %s because %s differs %s != %s", executable, item, found, searched)
                 if exact is False:
                     discovered.append(info)
                 break
@@ -522,10 +535,14 @@ class PythonInfo:  # noqa: PLR0904
         for name in self._possible_base():
             for at in (3, 2, 1, 0):
                 version = ".".join(str(i) for i in self.version_info[:at])
-                for arch in [f"-{self.architecture}", ""]:
-                    for ext in EXTENSIONS:
-                        candidate = f"{name}{version}{arch}{ext}"
-                        name_candidate[candidate] = None
+                mods = [""]
+                if self.free_threaded:
+                    mods.append("t")
+                for mod in mods:
+                    for arch in [f"-{self.architecture}", ""]:
+                        for ext in EXTENSIONS:
+                            candidate = f"{name}{version}{mod}{arch}{ext}"
+                            name_candidate[candidate] = None
         return list(name_candidate.keys())
 
     def _possible_base(self):

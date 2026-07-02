@@ -23,6 +23,7 @@ from virtualenv.util.subprocess import subprocess
 
 _CACHE = OrderedDict()
 _CACHE[Path(sys.executable)] = PythonInfo()
+LOGGER = logging.getLogger(__name__)
 
 
 def from_exe(cls, app_data, exe, env=None, raise_on_error=True, ignore_cache=False):  # noqa: FBT002, PLR0913
@@ -31,7 +32,7 @@ def from_exe(cls, app_data, exe, env=None, raise_on_error=True, ignore_cache=Fal
     if isinstance(result, Exception):
         if raise_on_error:
             raise result
-        logging.info("%s", result)
+        LOGGER.info("%s", result)
         result = None
     return result
 
@@ -75,7 +76,11 @@ def _get_via_file_cache(cls, app_data, path, exe, env):
         if py_info is None:  # if not loaded run and save
             failure, py_info = _run_subprocess(cls, exe, app_data, env)
             if failure is None:
-                data = {"st_mtime": path_modified, "path": path_text, "content": py_info._to_dict()}  # noqa: SLF001
+                data = {
+                    "st_mtime": path_modified,
+                    "path": path_text,
+                    "content": py_info._to_dict(),  # noqa: SLF001
+                }
                 py_info_store.write(data)
             else:
                 py_info = failure
@@ -109,10 +114,10 @@ def _run_subprocess(cls, exe, app_data, env):
         # prevent sys.prefix from leaking into the child process - see https://bugs.python.org/issue22490
         env = env.copy()
         env.pop("__PYVENV_LAUNCHER__", None)
-        logging.debug("get interpreter info via cmd: %s", LogCmd(cmd))
+        LOGGER.debug("get interpreter info via cmd: %s", LogCmd(cmd))
         try:
             process = Popen(
-                cmd,  # noqa: S603
+                cmd,
                 universal_newlines=True,
                 stdin=subprocess.PIPE,
                 stderr=subprocess.PIPE,

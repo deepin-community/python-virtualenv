@@ -23,7 +23,7 @@ from packaging.requirements import Requirement
 
 HERE = Path(__file__).parent.absolute()
 
-VERSIONS = [f"3.{i}" for i in range(10, 6, -1)]
+VERSIONS = [f"3.{i}" for i in range(13, 7, -1)]
 
 
 def main():
@@ -49,10 +49,10 @@ def create_zipapp(dest, packages):
         zip_app.writestr("__main__.py", (HERE / "__main__zipapp.py").read_bytes())
     bio.seek(0)
     zipapp.create_archive(bio, dest)
-    print(f"zipapp created at {dest}")  # noqa: T201
+    print(f"zipapp created at {dest} with size {os.path.getsize(dest) / 1024 / 1024:.2f}MB")  # noqa: T201
 
 
-def write_packages_to_zipapp(base, dist, modules, packages, zip_app):  # noqa: C901
+def write_packages_to_zipapp(base, dist, modules, packages, zip_app):  # noqa: C901, PLR0912
     has = set()
     for name, p_w_v in packages.items():  # noqa: PLR1702
         for platform, w_v in p_w_v.items():
@@ -93,7 +93,7 @@ class WheelDownloader:
         self.into = into
         self.collected = defaultdict(lambda: defaultdict(dict))
         self.pip_cmd = [str(Path(sys.executable).parent / "pip")]
-        self._cmd = [*self.pip_cmd, "download", "-q", "--no-deps", "--dest", str(self.into)]
+        self._cmd = [*self.pip_cmd, "download", "-q", "--no-deps", "--no-cache-dir", "--dest", str(self.into)]
 
     def run(self, target, versions):
         whl = self.build_sdist(target)
@@ -180,7 +180,7 @@ class WheelDownloader:
             platforms = []
             platform_positions = WheelDownloader._marker_at(markers, "sys_platform")
             deleted = 0
-            for pos in platform_positions:  # can only be ore meaningfully
+            for pos in platform_positions:  # can only be or meaningfully
                 platform = f"{markers[pos][1].value}{markers[pos][2].value}"
                 deleted += WheelDownloader._del_marker_at(markers, pos - deleted)
                 platforms.append(platform)
@@ -239,7 +239,7 @@ class WheelDownloader:
 
 def run_suppress_output(cmd, stop_print_on_fail=False):  # noqa: FBT002
     process = subprocess.Popen(
-        cmd,  # noqa: S603
+        cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         universal_newlines=True,
@@ -279,7 +279,7 @@ def get_wheels_for_support_versions(folder):
 class WheelForVersion:
     def __init__(self, wheel=None, versions=None) -> None:
         self.wheel = wheel
-        self.versions = versions if versions else []
+        self.versions = versions or []
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.wheel!r}, {self.versions!r})"

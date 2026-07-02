@@ -74,7 +74,7 @@ def test_manual_upgrade(session_app_data, caplog, mocker, for_py_version):
         packages[args[1]["distribution"]].append(args[1]["for_py_version"])
     packages = {key: sorted(value) for key, value in packages.items()}
     versions = sorted(BUNDLE_SUPPORT.keys())
-    expected = {"setuptools": versions, "wheel": versions, "pip": versions}
+    expected = {"setuptools": versions, "wheel": ["3.8"], "pip": versions}
     assert packages == expected
 
 
@@ -100,8 +100,6 @@ def test_pick_periodic_update(tmp_path, mocker, for_py_version):
             "--no-wheel",
             "--no-pip",
             "--setuptools",
-            "bundle",
-            "--wheel",
             "bundle",
         ],
     )
@@ -280,6 +278,7 @@ def test_trigger_update_no_debug(for_py_version, session_app_data, tmp_path, moc
     monkeypatch.delenv("_VIRTUALENV_PERIODIC_UPDATE_INLINE", raising=False)
     current = get_embed_wheel("setuptools", for_py_version)
     process = mocker.MagicMock()
+    process.pid = 123
     process.communicate.return_value = None, None
     Popen = mocker.patch("virtualenv.seed.wheels.periodic_update.Popen", return_value=process)  # noqa: N806
 
@@ -328,6 +327,7 @@ def test_trigger_update_debug(for_py_version, session_app_data, tmp_path, mocker
     current = get_embed_wheel("pip", for_py_version)
 
     process = mocker.MagicMock()
+    process.pid = 123
     process.communicate.return_value = None, None
     Popen = mocker.patch("virtualenv.seed.wheels.periodic_update.Popen", return_value=process)  # noqa: N806
 

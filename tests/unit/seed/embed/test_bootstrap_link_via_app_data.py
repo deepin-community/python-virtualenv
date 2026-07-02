@@ -23,9 +23,9 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
 
-@pytest.mark.slow()
+@pytest.mark.slow
 @pytest.mark.parametrize("copies", [False, True] if fs_supports_symlink() else [True])
-def test_seed_link_via_app_data(tmp_path, coverage_env, current_fastest, copies):
+def test_seed_link_via_app_data(tmp_path, coverage_env, current_fastest, copies, for_py_version):  # noqa: PLR0915
     current = PythonInfo.current_system()
     bundle_ver = BUNDLE_SUPPORT[current.version_release_str]
     create_cmd = [
@@ -45,6 +45,8 @@ def test_seed_link_via_app_data(tmp_path, coverage_env, current_fastest, copies)
         current_fastest,
         "-vv",
     ]
+    if for_py_version == "3.8":
+        create_cmd += ["--wheel", bundle_ver["wheel"].split("-")[1]]
     if not copies:
         create_cmd.append("--symlink-app-data")
     result = cli_run(create_cmd)
@@ -109,7 +111,7 @@ def test_seed_link_via_app_data(tmp_path, coverage_env, current_fastest, copies)
 
     # Windows does not allow removing a executable while running it, so when uninstalling pip we need to do it via
     # python -m pip
-    remove_cmd = [str(result.creator.exe), "-m", "pip"] + remove_cmd[1:]
+    remove_cmd = [str(result.creator.exe), "-m", "pip", *remove_cmd[1:]]
     process = Popen([*remove_cmd, "pip", "wheel"])
     _, __ = process.communicate()
     assert not process.returncode
@@ -140,13 +142,14 @@ def read_only_dir(d):
                 os.chmod(name, os.stat(name).st_mode | write)
 
 
-@pytest.fixture()
+@pytest.fixture
 def read_only_app_data(temp_app_data):
     temp_app_data.mkdir()
     with read_only_dir(temp_app_data):
         yield temp_app_data
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(sys.platform == "win32", reason="Windows only applies R/O to files")
 @pytest.mark.usefixtures("read_only_app_data")
 def test_base_bootstrap_link_via_app_data_not_writable(tmp_path, current_fastest):
@@ -155,6 +158,7 @@ def test_base_bootstrap_link_via_app_data_not_writable(tmp_path, current_fastest
     assert result
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(sys.platform == "win32", reason="Windows only applies R/O to files")
 def test_populated_read_only_cache_and_symlinked_app_data(tmp_path, current_fastest, temp_app_data):
     dest = tmp_path / "venv"
@@ -180,6 +184,7 @@ def test_populated_read_only_cache_and_symlinked_app_data(tmp_path, current_fast
         check_call((str(dest.joinpath("bin/python")), "-c", "import pip"))
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(sys.platform == "win32", reason="Windows only applies R/O to files")
 def test_populated_read_only_cache_and_copied_app_data(tmp_path, current_fastest, temp_app_data):
     dest = tmp_path / "venv"
@@ -204,14 +209,21 @@ def test_populated_read_only_cache_and_copied_app_data(tmp_path, current_fastest
         assert cli_run(["--read-only-app-data", *cmd])
 
 
-@pytest.mark.slow()
+@pytest.mark.slow
 @pytest.mark.parametrize("pkg", ["pip", "setuptools", "wheel"])
 @pytest.mark.usefixtures("session_app_data", "current_fastest", "coverage_env")
-def test_base_bootstrap_link_via_app_data_no(tmp_path, pkg):
-    create_cmd = [str(tmp_path), "--seeder", "app-data", f"--no-{pkg}", "--wheel", "bundle", "--setuptools", "bundle"]
+def test_base_bootstrap_link_via_app_data_no(tmp_path, pkg, for_py_version):
+    if for_py_version != "3.8" and pkg == "wheel":
+        msg = "wheel isn't installed on Python > 3.8"
+        raise pytest.skip(msg)
+    create_cmd = [str(tmp_path), "--seeder", "app-data", f"--no-{pkg}", "--setuptools", "bundle"]
+    if for_py_version == "3.8":
+        create_cmd += ["--wheel", "bundle"]
     result = cli_run(create_cmd)
     assert not (result.creator.purelib / pkg).exists()
     for key in {"pip", "setuptools", "wheel"} - {pkg}:
+        if for_py_version != "3.8" and key == "wheel":
+            continue
         assert (result.creator.purelib / key).exists()
 
 
@@ -227,7 +239,7 @@ def test_app_data_parallel_fail(tmp_path: Path, mocker: MockerFixture) -> None:
     exceptions = _run_parallel_threads(tmp_path)
     assert len(exceptions) == 2
     for exception in exceptions:
-        assert exception.startswith("failed to build image wheel because:\nTraceback")
+        assert exception.startswith("failed to build image pip because:\nTraceback")
         assert "RuntimeError" in exception, exception
 
 
@@ -236,7 +248,10 @@ def _run_parallel_threads(tmp_path):
 
     def _run(name):
         try:
-            cli_run(["--seeder", "app-data", str(tmp_path / name), "--no-pip", "--no-setuptools", "--wheel", "bundle"])
+            cmd = ["--seeder", "app-data", str(tmp_path / name), "--no-setuptools"]
+            if sys.version_info[:2] == (3, 8):
+                cmd.append("--no-wheel")
+            cli_run(cmd)
         except Exception as exception:  # noqa: BLE001
             as_str = str(exception)
             exceptions.append(as_str)

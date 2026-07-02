@@ -13,12 +13,13 @@ import pytest
 
 from virtualenv.app_data import AppDataDiskFolder
 from virtualenv.discovery.py_info import PythonInfo
-from virtualenv.info import IS_PYPY, IS_WIN, fs_supports_symlink
+from virtualenv.info import IS_GRAALPY, IS_PYPY, IS_WIN, fs_supports_symlink
 from virtualenv.report import LOGGER
 
 
 def pytest_addoption(parser):
     parser.addoption("--int", action="store_true", default=False, help="run integration tests")
+    parser.addoption("--skip-slow", action="store_true", default=False, help="skip slow tests")
 
 
 def pytest_configure(config):
@@ -45,6 +46,11 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if item.location[0].startswith(int_location):
                 item.add_marker(pytest.mark.skip(reason="need --int option to run"))
+
+    if config.getoption("--skip-slow"):
+        for item in items:
+            if "slow" in [mark.name for mark in item.iter_markers()]:
+                item.add_marker(pytest.mark.skip(reason="skipped because --skip-slow was passed"))
 
 
 @pytest.fixture(scope="session")
@@ -234,7 +240,7 @@ def coverage_env(monkeypatch, link, request):
 
 
 # _no_coverage tells coverage_env to disable coverage injection for _no_coverage user.
-@pytest.fixture()
+@pytest.fixture
 def _no_coverage():
     pass
 
@@ -275,7 +281,11 @@ def is_inside_ci():
 
 @pytest.fixture(scope="session")
 def special_char_name():
-    base = "e-$ èрт🚒♞中片-j"
+    base = "'\";&&e-$ èрт🚒♞中片-j"
+    if IS_WIN:
+        # get rid of invalid characters on Windows
+        base = base.replace('"', "")
+        base = base.replace(";", "")
     # workaround for pypy3 https://bitbucket.org/pypy/pypy/issues/3147/venv-non-ascii-support-windows
     encoding = "ascii" if IS_WIN else sys.getfilesystemencoding()
     # let's not include characters that the file system cannot encode)
@@ -291,7 +301,7 @@ def special_char_name():
     return result
 
 
-@pytest.fixture()
+@pytest.fixture
 def special_name_dir(tmp_path, special_char_name):
     return Path(str(tmp_path)) / special_char_name
 
@@ -332,7 +342,7 @@ def change_env_var(key, value):
             del os.environ[key]  # pragma: no cover
 
 
-@pytest.fixture()
+@pytest.fixture
 def temp_app_data(monkeypatch, tmp_path):
     app_data = tmp_path / "app-data"
     monkeypatch.setenv("VIRTUALENV_OVERRIDE_APP_DATA", str(app_data))
@@ -344,21 +354,21 @@ def for_py_version():
     return f"{sys.version_info.major}.{sys.version_info.minor}"
 
 
-@pytest.fixture()
+@pytest.fixture
 def _skip_if_test_in_system(session_app_data):
     current = PythonInfo.current(session_app_data)
     if current.system_executable is not None:
         pytest.skip("test not valid if run under system")
 
 
-if IS_PYPY:
+if IS_PYPY or IS_GRAALPY:
 
-    @pytest.fixture()
+    @pytest.fixture
     def time_freeze(freezer):
         return freezer.move_to
 
 else:
 
-    @pytest.fixture()
+    @pytest.fixture
     def time_freeze(time_machine):
         return lambda s: time_machine.move_to(s, tick=False)

@@ -5,7 +5,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -16,6 +16,7 @@ from virtualenv.seed.wheels.periodic_update import dump_datetime
 from virtualenv.seed.wheels.util import Wheel, discover_wheels
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from unittest.mock import MagicMock
 
     from pytest_mock import MockerFixture
@@ -88,7 +89,7 @@ def test_download_fails(mocker, for_py_version, session_app_data):
     ] == exc.cmd
 
 
-@pytest.fixture()
+@pytest.fixture
 def downloaded_wheel(mocker):
     wheel = Wheel.from_path(Path("setuptools-0.0.0-py2.py3-none-any.whl"))
     return wheel, mocker.patch("virtualenv.seed.wheels.acquire.download_wheel", return_value=wheel)

@@ -4,7 +4,6 @@ Priority: optional
 Maintainer: Debian Python Team <team+python@tracker.debian.org>
 Uploaders: Carl Chenet <chaica@ohmytux.com>,
            Stefano Rivera <stefanor@debian.org>,
-           Scott Kitterman <scott@kitterman.com>,
 Homepage: https://virtualenv.pypa.io/
 Vcs-Git: https://salsa.debian.org/python-team/packages/python-virtualenv.git
 Vcs-Browser: https://salsa.debian.org/python-team/packages/python-virtualenv
@@ -16,21 +15,18 @@ Build-Depends: debhelper-compat (= 13),
                zip <!nocheck>,
 Build-Depends-Indep: python3-distlib (>= 0.3.1) <!nocheck>,
                      python3-filelock <!nocheck>,
-                     python3-importlib-metadata (>= 3.6) <!nocheck>,
                      python3-pip-whl <!nocheck>,
                      python3-platformdirs <!nocheck>,
                      python3-hatchling (>= 1.11.1),
                      python3-hatch-vcs (>= 0.3),
                      python3-setuptools-whl <!nocheck>,
-                     python3-wheel-whl <!nocheck>,
-Standards-Version: 4.6.2
+Standards-Version: 4.7.2
 Rules-Requires-Root: no
 
 Package: python3-virtualenv
 Architecture: all
 Depends: python3-pip-whl,
          python3-setuptools-whl,
-         python3-wheel-whl,
          ${misc:Depends},
          ${python3:Depends},
 Recommends: build-essential, ca-certificates, python3-dev

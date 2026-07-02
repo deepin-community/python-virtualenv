@@ -9,6 +9,7 @@ import pytest
 from flaky import flaky
 
 from virtualenv.discovery.py_info import PythonInfo
+from virtualenv.info import fs_supports_symlink
 from virtualenv.run import cli_run
 
 HERE = Path(__file__).parent
@@ -18,30 +19,33 @@ CURRENT = PythonInfo.current_system()
 @pytest.fixture(scope="session")
 def zipapp_build_env(tmp_path_factory):
     create_env_path = None
-    if CURRENT.implementation != "PyPy":
+    if CURRENT.implementation not in {"PyPy", "GraalVM"}:
         exe = CURRENT.executable  # guaranteed to contain a recent enough pip (tox.ini)
     else:
         create_env_path = tmp_path_factory.mktemp("zipapp-create-env")
         exe, found = None, False
         # prefer CPython as builder as pypy is slow
         for impl in ["cpython", ""]:
-            for version in range(11, 6, -1):
-                with suppress(Exception):
-                    # create a virtual environment which is also guaranteed to contain a recent enough pip (bundled)
-                    session = cli_run(
-                        [
-                            "-vvv",
-                            "-p",
-                            f"{impl}3.{version}",
-                            "--activators",
-                            "",
-                            str(create_env_path),
-                            "--no-download",
-                            "--no-periodic-update",
-                        ],
-                    )
-                    exe = str(session.creator.exe)
-                    found = True
+            for threaded in ["", "t"]:
+                for version in range(11, 6, -1):
+                    with suppress(Exception):
+                        # create a virtual environment which is also guaranteed to contain a recent enough pip (bundled)
+                        session = cli_run(
+                            [
+                                "-vvv",
+                                "-p",
+                                f"{impl}3.{version}{threaded}",
+                                "--activators",
+                                "",
+                                str(create_env_path),
+                                "--no-download",
+                                "--no-periodic-update",
+                            ],
+                        )
+                        exe = str(session.creator.exe)
+                        found = True
+                        break
+                if found:
                     break
             if found:
                 break
@@ -74,13 +78,31 @@ def zipapp_test_env(tmp_path_factory):
     shutil.rmtree(str(base_path))
 
 
-@pytest.fixture()
+@pytest.fixture
 def call_zipapp(zipapp, tmp_path, zipapp_test_env, temp_app_data):  # noqa: ARG001
     def _run(*args):
         cmd = [str(zipapp_test_env), str(zipapp), "-vv", str(tmp_path / "env"), *list(args)]
         subprocess.check_call(cmd)
 
     return _run
+
+
+@pytest.fixture
+def call_zipapp_symlink(zipapp, tmp_path, zipapp_test_env, temp_app_data):  # noqa: ARG001
+    def _run(*args):
+        symlinked = zipapp.parent / "symlinked_virtualenv.pyz"
+        symlinked.symlink_to(str(zipapp))
+        cmd = [str(zipapp_test_env), str(symlinked), "-vv", str(tmp_path / "env"), *list(args)]
+        subprocess.check_call(cmd)
+
+    return _run
+
+
+@pytest.mark.skipif(not fs_supports_symlink(), reason="symlink not supported")
+def test_zipapp_in_symlink(capsys, call_zipapp_symlink):
+    call_zipapp_symlink("--reset-app-data")
+    _out, err = capsys.readouterr()
+    assert not err
 
 
 @flaky(max_runs=2, min_passes=1)
@@ -90,6 +112,7 @@ def test_zipapp_help(call_zipapp, capsys):
     assert not err
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("seeder", ["app-data", "pip"])
 def test_zipapp_create(call_zipapp, seeder):
     call_zipapp("--seeder", seeder)

@@ -21,7 +21,11 @@
   "original_executable": "/usr/bin/pypy3",
   "system_executable": "/usr/bin/pypy3",
   "has_venv": true,
-  "path": ["/usr/lib/pypy3.8", "/usr/local/lib/pypy3.8/dist-packages", "/usr/lib/python3/dist-packages"],
+  "path": [
+    "/usr/lib/pypy3.8",
+    "/usr/local/lib/pypy3.8/dist-packages",
+    "/usr/lib/python3/dist-packages"
+  ],
   "file_system_encoding": "utf-8",
   "stdout_encoding": "UTF-8",
   "sysconfig_scheme": null,
@@ -56,5 +60,6 @@
   "system_stdlib": "/usr/lib/pypy3.8",
   "system_stdlib_platform": "/usr/lib/pypy3.8",
   "max_size": 9223372036854775807,
-  "_creators": null
+  "_creators": null,
+  "free_threaded": false
 }

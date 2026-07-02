@@ -11,6 +11,7 @@ import site
 import stat
 import subprocess
 import sys
+import textwrap
 import zipfile
 from collections import OrderedDict
 from itertools import product
@@ -223,6 +224,33 @@ def test_create_no_seed(  # noqa: C901, PLR0912, PLR0913, PLR0915
     assert git_ignore.splitlines() == [comment, "*"]
 
 
+def test_create_cachedir_tag(tmp_path):
+    cachedir_tag_file = tmp_path / "CACHEDIR.TAG"
+    cli_run([str(tmp_path), "--without-pip", "--activators", ""])
+
+    expected = """
+    Signature: 8a477f597d28d172789f06886806bc55
+    # This file is a cache directory tag created by Python virtualenv.
+    # For information about cache directory tags, see:
+    #   https://bford.info/cachedir/
+    """
+    assert cachedir_tag_file.read_text(encoding="utf-8") == textwrap.dedent(expected).strip()
+
+
+def test_create_cachedir_tag_exists(tmp_path: Path) -> None:
+    cachedir_tag_file = tmp_path / "CACHEDIR.TAG"
+    cachedir_tag_file.write_text("magic", encoding="utf-8")
+    cli_run([str(tmp_path), "--without-pip", "--activators", ""])
+    assert cachedir_tag_file.read_text(encoding="utf-8") == "magic"
+
+
+def test_create_cachedir_tag_exists_override(tmp_path: Path) -> None:
+    cachedir_tag_file = tmp_path / "CACHEDIR.TAG"
+    cachedir_tag_file.write_text("magic", encoding="utf-8")
+    cli_run([str(tmp_path), "--without-pip", "--activators", ""])
+    assert cachedir_tag_file.read_text(encoding="utf-8") == "magic"
+
+
 def test_create_vcs_ignore_exists(tmp_path):
     git_ignore = tmp_path / ".gitignore"
     git_ignore.write_text("magic", encoding="utf-8")
@@ -370,6 +398,7 @@ def test_create_long_path(tmp_path):
     subprocess.check_call([str(result.creator.script("pip")), "--version"])
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("creator", sorted(set(PythonInfo.current_system().creators().key_to_class) - {"builtin"}))
 @pytest.mark.usefixtures("session_app_data")
 def test_create_distutils_cfg(creator, tmp_path, monkeypatch):
@@ -381,8 +410,6 @@ def test_create_distutils_cfg(creator, tmp_path, monkeypatch):
             "--creator",
             creator,
             "--setuptools",
-            "bundle",
-            "--wheel",
             "bundle",
         ],
     )
@@ -437,6 +464,7 @@ def list_files(path):
 
 
 @pytest.mark.skipif(is_macos_brew(CURRENT), reason="no copy on brew")
+@pytest.mark.skip(reason="https://github.com/pypa/setuptools/issues/4640")
 def test_zip_importer_can_import_setuptools(tmp_path):
     """We're patching the loaders so might fail on r/o loaders, such as zipimporter on CPython<3.8"""
     result = cli_run(
@@ -484,10 +512,9 @@ def test_no_preimport_threading(tmp_path):
 # verify that .pth files in site-packages/ are always processed even if $PYTHONPATH points to it.
 def test_pth_in_site_vs_python_path(tmp_path):
     session = cli_run([str(tmp_path)])
-    site_packages = str(session.creator.purelib)
+    site_packages = session.creator.purelib
     # install test.pth that sets sys.testpth='ok'
-    with open(os.path.join(site_packages, "test.pth"), "w", encoding="utf-8") as f:
-        f.write('import sys; sys.testpth="ok"\n')
+    (session.creator.purelib / "test.pth").write_text('import sys; sys.testpth="ok"\n', encoding="utf-8")
     # verify that test.pth is activated when interpreter is run
     out = subprocess.check_output(
         [str(session.creator.exe), "-c", r"import sys; print(sys.testpth)"],
@@ -497,7 +524,7 @@ def test_pth_in_site_vs_python_path(tmp_path):
     assert out == "ok\n"
     # same with $PYTHONPATH pointing to site_packages
     env = os.environ.copy()
-    path = [site_packages]
+    path = [str(site_packages)]
     if "PYTHONPATH" in env:
         path.append(env["PYTHONPATH"])
     env["PYTHONPATH"] = os.pathsep.join(path)

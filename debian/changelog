@@ -1,3 +1,96 @@
+python-virtualenv (20.31.2+ds-1+deb13u1) trixie; urgency=medium
+
+  * Non-maintainer upload.
+  * CVE-2026-22702: Time-of-Check-Time-of-Use Vulnerabilities
+    in Directory Creation (Closes: #1125191)
+
+ -- Adrian Bunk <bunk@debian.org>  Sun, 28 Jun 2026 18:25:34 +0300
+
+python-virtualenv (20.31.2+ds-1) unstable; urgency=medium
+
+  [ Stefano Rivera ]
+  * New upstream release.
+  * Refresh patches.
+  * Drop no-wheel-whl patch, superseded upstream.
+
+  [ Alexandre Detiste ]
+  * Drop build-dep on python3-importlib-metadata
+
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 09 May 2025 09:08:14 -0400
+
+python-virtualenv (20.30.0+ds-3) unstable; urgency=medium
+
+  * Update no-wheel-whl patch to include a deprecated noop --no-wheel option.
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 28 Apr 2025 13:56:37 -0400
+
+python-virtualenv (20.30.0+ds-2) unstable; urgency=medium
+
+  * Patch: Drop dependency on python3-wheel-whl, no longer needed.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sun, 27 Apr 2025 19:12:47 -0400
+
+python-virtualenv (20.30.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Bump Standards-Version to 4.7.2, no changes needed.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 05 Apr 2025 18:30:36 -0400
+
+python-virtualenv (20.29.3+ds-1) unstable; urgency=medium
+
+  * New upstream point release.
+  * Update manpage, fixing some lint errors (Closes: #1094150).
+  * Refresh patches.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sun, 30 Mar 2025 14:47:40 -0400
+
+python-virtualenv (20.29.1+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Bump copyright years.
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 20 Jan 2025 18:28:45 -0400
+
+python-virtualenv (20.28.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 29 Nov 2024 14:49:43 -0400
+
+python-virtualenv (20.27.0+ds-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sun, 20 Oct 2024 11:43:40 -0700
+
+python-virtualenv (20.26.6+ds-1) unstable; urgency=medium
+
+  * New upstream point release.
+  * Refresh patches.
+  * Bump Standards-Version to 4.7.0, no changes needed.
+
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 15 Oct 2024 09:24:51 -0700
+
+python-virtualenv (20.26.2+ds-1) unstable; urgency=medium
+
+  * New upstream point release.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 25 May 2024 11:44:03 -0400
+
+python-virtualenv (20.26.1+ds-1) unstable; urgency=medium
+
+  [ Stefano Rivera ]
+  * New upstream release.
+  * Update copyright years.
+
+  [ Scott Kitterman ]
+  * Remove myself from uploaders
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 29 Apr 2024 18:09:59 -0400
+
 python-virtualenv (20.25.1+ds-1) unstable; urgency=medium
 
   * New upstream point release.

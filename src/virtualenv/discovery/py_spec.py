@@ -2,31 +2,39 @@
 
 from __future__ import annotations
 
-import contextlib
 import os
 import re
-from collections import OrderedDict
 
-from virtualenv.info import fs_is_case_sensitive
-
-PATTERN = re.compile(r"^(?P<impl>[a-zA-Z]+)?(?P<version>[0-9.]+)?(?:-(?P<arch>32|64))?$")
+PATTERN = re.compile(r"^(?P<impl>[a-zA-Z]+)?(?P<version>[0-9.]+)?(?P<threaded>t)?(?:-(?P<arch>32|64))?$")
 
 
 class PythonSpec:
     """Contains specification about a Python Interpreter."""
 
-    def __init__(self, str_spec, implementation, major, minor, micro, architecture, path) -> None:  # noqa: PLR0913
+    def __init__(  # noqa: PLR0913
+        self,
+        str_spec: str,
+        implementation: str | None,
+        major: int | None,
+        minor: int | None,
+        micro: int | None,
+        architecture: int | None,
+        path: str | None,
+        *,
+        free_threaded: bool | None = None,
+    ) -> None:
         self.str_spec = str_spec
         self.implementation = implementation
         self.major = major
         self.minor = minor
         self.micro = micro
+        self.free_threaded = free_threaded
         self.architecture = architecture
         self.path = path
 
     @classmethod
-    def from_string_spec(cls, string_spec):  # noqa: C901, PLR0912
-        impl, major, minor, micro, arch, path = None, None, None, None, None, None
+    def from_string_spec(cls, string_spec: str):  # noqa: C901, PLR0912
+        impl, major, minor, micro, threaded, arch, path = None, None, None, None, None, None, None
         if os.path.isabs(string_spec):  # noqa: PLR1702
             path = string_spec
         else:
@@ -53,6 +61,7 @@ class PythonSpec:
                             major = int(str(version_data)[0])  # first digit major
                             if version_data > 9:  # noqa: PLR2004
                                 minor = int(str(version_data)[1:])
+                        threaded = bool(groups["threaded"])
                     ok = True
                 except ValueError:
                     pass
@@ -65,28 +74,29 @@ class PythonSpec:
             if not ok:
                 path = string_spec
 
-        return cls(string_spec, impl, major, minor, micro, arch, path)
+        return cls(string_spec, impl, major, minor, micro, arch, path, free_threaded=threaded)
 
-    def generate_names(self):
-        impls = OrderedDict()
-        if self.implementation:
-            # first consider implementation as it is
-            impls[self.implementation] = False
-            if fs_is_case_sensitive():
-                # for case sensitive file systems consider lower and upper case versions too
-                # trivia: MacBooks and all pre 2018 Windows-es were case insensitive by default
-                impls[self.implementation.lower()] = False
-                impls[self.implementation.upper()] = False
-        impls["python"] = True  # finally consider python as alias, implementation must match now
-        version = self.major, self.minor, self.micro
-        with contextlib.suppress(ValueError):
-            version = version[: version.index(None)]
-
-        for impl, match in impls.items():
-            for at in range(len(version), -1, -1):
-                cur_ver = version[0:at]
-                spec = f"{impl}{'.'.join(str(i) for i in cur_ver)}"
-                yield spec, match
+    def generate_re(self, *, windows: bool) -> re.Pattern:
+        """Generate a regular expression for matching against a filename."""
+        version = r"{}(\.{}(\.{})?)?".format(
+            *(r"\d+" if v is None else v for v in (self.major, self.minor, self.micro))
+        )
+        impl = "python" if self.implementation is None else f"python|{re.escape(self.implementation)}"
+        mod = "t?" if self.free_threaded else ""
+        suffix = r"\.exe" if windows else ""
+        version_conditional = (
+            "?"
+            # Windows Python executables are almost always unversioned
+            if windows
+            # Spec is an empty string
+            or self.major is None
+            else ""
+        )
+        # Try matching `direct` first, so the `direct` group is filled when possible.
+        return re.compile(
+            rf"(?P<impl>{impl})(?P<v>{version}{mod}){version_conditional}{suffix}$",
+            flags=re.IGNORECASE,
+        )
 
     @property
     def is_abs(self):
@@ -100,6 +110,8 @@ class PythonSpec:
             return False
         if spec.architecture is not None and spec.architecture != self.architecture:
             return False
+        if spec.free_threaded is not None and spec.free_threaded != self.free_threaded:
+            return False
 
         for our, req in zip((self.major, self.minor, self.micro), (spec.major, spec.minor, spec.micro)):
             if req is not None and our is not None and our != req:
@@ -108,7 +120,7 @@ class PythonSpec:
 
     def __repr__(self) -> str:
         name = type(self).__name__
-        params = "implementation", "major", "minor", "micro", "architecture", "path"
+        params = "implementation", "major", "minor", "micro", "architecture", "path", "free_threaded"
         return f"{name}({', '.join(f'{k}={getattr(self, k)}' for k in params if getattr(self, k) is not None)})"
 
 

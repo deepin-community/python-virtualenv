@@ -15,18 +15,19 @@ from threading import Thread
 STRICT = "UPGRADE_ADVISORY" not in os.environ
 
 BUNDLED = ["pip", "setuptools", "wheel"]
-SUPPORT = [(3, i) for i in range(7, 14)]
+SUPPORT = [(3, i) for i in range(8, 15)]
 DEST = Path(__file__).resolve().parents[1] / "src" / "virtualenv" / "seed" / "wheels" / "embed"
 
 
 def download(ver, dest, package):
     subprocess.call(
-        [  # noqa: S603
+        [
             sys.executable,
             "-m",
             "pip",
             "--disable-pip-version-check",
             "download",
+            "--no-cache-dir",
             "--only-binary=:all:",
             "--python-version",
             ver,
@@ -37,7 +38,7 @@ def download(ver, dest, package):
     )
 
 
-def run():  # noqa: C901
+def run():  # noqa: C901, PLR0912
     old_batch = {i.name for i in DEST.iterdir() if i.suffix == ".whl"}
     with TemporaryDirectory() as temp:
         temp_path = Path(temp)
@@ -49,6 +50,8 @@ def run():  # noqa: C901
             into.mkdir()
             folders[into] = support_ver
             for package in BUNDLED:
+                if package == "wheel" and support >= (3, 9):
+                    continue
                 thread = Thread(target=download, args=(support_ver, str(into), package))
                 targets.append(thread)
                 thread.start()
@@ -66,8 +69,8 @@ def run():  # noqa: C901
 
         added = collect_package_versions(new_packages)
         removed = collect_package_versions(remove_packages)
-
         outcome = (1 if STRICT else 0) if (added or removed) else 0
+        print(f"Outcome {outcome} added {added} removed {removed}")  # noqa: T201
         lines = ["Upgrade embedded wheels:", ""]
         for key, versions in added.items():
             text = f"* {key} to {fmt_version(versions)}"
@@ -89,8 +92,10 @@ def run():  # noqa: C901
                 if (folder / package).exists():
                     support_table[version].append(package)
         support_table = {k: OrderedDict((i.split("-")[0], i) for i in v) for k, v in support_table.items()}
-        bundle = ",".join(
-            f"{v!r}: {{ {','.join(f'{p!r}: {f!r}' for p, f in line.items())} }}" for v, line in support_table.items()
+        nl = "\n"
+        bundle = "".join(
+            f"\n        {v!r}: {{{nl}{''.join(f'            {p!r}: {f!r},{nl}' for p, f in line.items())}        }},"
+            for v, line in support_table.items()
         )
         msg = dedent(
             f"""
@@ -119,8 +124,8 @@ def run():  # noqa: C901
         )
         dest_target = DEST / "__init__.py"
         dest_target.write_text(msg, encoding="utf-8")
-
-        subprocess.run([sys.executable, "-m", "ruff", str(dest_target), "--fix", "--unsafe-fixes"], check=False)  # noqa: S603
+        subprocess.run([sys.executable, "-m", "ruff", "check", str(dest_target), "--fix", "--unsafe-fixes"])
+        subprocess.run([sys.executable, "-m", "ruff", "format", str(dest_target), "--preview"])
 
         raise SystemExit(outcome)
 

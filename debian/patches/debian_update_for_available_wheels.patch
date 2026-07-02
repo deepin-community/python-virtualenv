@@ -13,11 +13,11 @@ Last-Update: 2020-07-15
  1 file changed, 21 insertions(+)
 
 diff --git a/src/virtualenv/seed/wheels/embed/__init__.py b/src/virtualenv/seed/wheels/embed/__init__.py
-index 4227189..8ca7d09 100644
+index 5ca63de..6c8180d 100644
 --- a/src/virtualenv/seed/wheels/embed/__init__.py
 +++ b/src/virtualenv/seed/wheels/embed/__init__.py
-@@ -45,6 +45,27 @@ BUNDLE_SUPPORT = {
- MAX = "3.7"
+@@ -39,6 +39,27 @@ BUNDLE_SUPPORT = {
+ MAX = "3.8"
  
  
 +# Debian specific: Update BUNDLE_SUPPORT to match pip wheels shipped in
@@ -42,5 +42,5 @@ index 4227189..8ca7d09 100644
 +
 +
  def get_embed_wheel(distribution, for_py_version):
-     path = BUNDLE_FOLDER / (BUNDLE_SUPPORT.get(for_py_version, {}) or BUNDLE_SUPPORT[MAX]).get(distribution)
-     return Wheel.from_path(path)
+     mapping = BUNDLE_SUPPORT.get(for_py_version, {}) or BUNDLE_SUPPORT[MAX]
+     wheel_file = mapping.get(distribution)

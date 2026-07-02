@@ -13,7 +13,7 @@ Last-Update: 2020-07-15
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/virtualenv/seed/wheels/embed/__init__.py b/src/virtualenv/seed/wheels/embed/__init__.py
-index 04334f9..4227189 100644
+index 6b3ef26..5ca63de 100644
 --- a/src/virtualenv/seed/wheels/embed/__init__.py
 +++ b/src/virtualenv/seed/wheels/embed/__init__.py
 @@ -4,7 +4,7 @@ from pathlib import Path
@@ -23,5 +23,5 @@ index 04334f9..4227189 100644
 -BUNDLE_FOLDER = Path(__file__).absolute().parent
 +BUNDLE_FOLDER = Path('/usr/share/python-wheels')
  BUNDLE_SUPPORT = {
-     "3.7": {
-         "pip": "pip-24.0-py3-none-any.whl",
+     "3.8": {
+         "pip": "pip-25.0.1-py3-none-any.whl",

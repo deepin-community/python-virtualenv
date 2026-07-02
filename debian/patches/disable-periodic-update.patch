@@ -11,13 +11,13 @@ Forwarded: not-needed
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/virtualenv/seed/embed/base_embed.py b/src/virtualenv/seed/embed/base_embed.py
-index 864cc49..7d83cb6 100644
+index 72fc5a3..59f3f2c 100644
 --- a/src/virtualenv/seed/embed/base_embed.py
 +++ b/src/virtualenv/seed/embed/base_embed.py
-@@ -6,7 +6,7 @@ from pathlib import Path
- from virtualenv.seed.seeder import Seeder
+@@ -9,7 +9,7 @@ from virtualenv.seed.seeder import Seeder
  from virtualenv.seed.wheels import Version
  
+ LOGGER = logging.getLogger(__name__)
 -PERIODIC_UPDATE_ON_BY_DEFAULT = True
 +PERIODIC_UPDATE_ON_BY_DEFAULT = False
  

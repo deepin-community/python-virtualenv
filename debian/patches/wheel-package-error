@@ -4,14 +4,14 @@ Subject: Debian: Instruct the user to install the appropriate -whl package
 
 Forwarded: not-needed
 ---
- src/virtualenv/seed/wheels/embed/__init__.py | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ src/virtualenv/seed/wheels/embed/__init__.py | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
 diff --git a/src/virtualenv/seed/wheels/embed/__init__.py b/src/virtualenv/seed/wheels/embed/__init__.py
-index 8ca7d09..f417a47 100644
+index 6c8180d..6ed9727 100644
 --- a/src/virtualenv/seed/wheels/embed/__init__.py
 +++ b/src/virtualenv/seed/wheels/embed/__init__.py
-@@ -67,6 +67,19 @@ BUNDLE_SUPPORT = list_available_wheels(BUNDLE_SUPPORT.keys())
+@@ -61,6 +61,20 @@ BUNDLE_SUPPORT = list_available_wheels(BUNDLE_SUPPORT.keys())
  
  
  def get_embed_wheel(distribution, for_py_version):
@@ -27,7 +27,8 @@ index 8ca7d09..f417a47 100644
 +                '2' if for_py_version == '2.7' else '3',
 +                distribution,
 +            ))
++    # End Debian specific
 +
-     path = BUNDLE_FOLDER / (BUNDLE_SUPPORT.get(for_py_version, {}) or BUNDLE_SUPPORT[MAX]).get(distribution)
-     return Wheel.from_path(path)
- 
+     mapping = BUNDLE_SUPPORT.get(for_py_version, {}) or BUNDLE_SUPPORT[MAX]
+     wheel_file = mapping.get(distribution)
+     if wheel_file is None:

@@ -12,7 +12,7 @@ from virtualenv.seed.wheels.bundle import load_embed_wheel
 from virtualenv.seed.wheels.embed import BUNDLE_FOLDER, BUNDLE_SUPPORT
 
 
-@pytest.mark.slow()
+@pytest.mark.slow
 @pytest.mark.parametrize("no", ["pip", "setuptools", "wheel", ""])
 def test_base_bootstrap_via_pip_invoke(tmp_path, coverage_env, mocker, current_fastest, no):  # noqa: C901
     extra_search_dir = tmp_path / "extra"
@@ -25,7 +25,7 @@ def test_base_bootstrap_via_pip_invoke(tmp_path, coverage_env, mocker, current_f
     def _load_embed_wheel(app_data, distribution, for_py_version, version):  # noqa: ARG001
         return load_embed_wheel(app_data, distribution, old_ver, version)
 
-    old_ver = "3.7"
+    old_ver = "3.8"
     old = BUNDLE_SUPPORT[old_ver]
     mocker.patch("virtualenv.seed.wheels.bundle.load_embed_wheel", side_effect=_load_embed_wheel)
 
@@ -49,7 +49,9 @@ def test_base_bootstrap_via_pip_invoke(tmp_path, coverage_env, mocker, current_f
 
     original = PipInvoke._execute  # noqa: SLF001
     run = mocker.patch.object(PipInvoke, "_execute", side_effect=_execute)
-    versions = {"pip": "embed", "setuptools": "bundle", "wheel": new["wheel"].split("-")[1]}
+    versions = {"pip": "embed", "setuptools": "bundle"}
+    if sys.version_info[:2] == (3, 8):
+        versions["wheel"] = new["wheel"].split("-")[1]
 
     create_cmd = [
         "--seeder",
@@ -85,5 +87,7 @@ def test_base_bootstrap_via_pip_invoke(tmp_path, coverage_env, mocker, current_f
 
     for key in ("pip", "setuptools", "wheel"):
         if key == no:
+            continue
+        if sys.version_info[:2] >= (3, 9) and key == "wheel":
             continue
         assert locals()[key] in files_post_first_create
